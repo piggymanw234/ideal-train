@@ -5,8 +5,8 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Rye&family=IM+Fell+English:ital@0;1&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#000;overflow:hidden;font-family:'IM Fell English',serif;cursor:none;}
-canvas{display:block;}
+body{background:#000;overflow:hidden;font-family:'IM Fell English',serif;cursor:default;}
+canvas#c{cursor:none;display:block;}
 #xh{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);width:20px;height:20px;}
 #xh::before,#xh::after{content:'';position:absolute;background:rgba(255,215,55,.82);}
 #xh::before{width:1px;height:20px;left:9px;top:0;}
@@ -28,7 +28,7 @@ canvas{display:block;}
 @keyframes iLine{to{width:270px}}
 
 /* ═══ MENU ═══ */
-#menu{position:fixed;inset:0;z-index:800;display:none;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 55%,rgba(28,13,3,.98),rgba(3,2,1,.99));}
+#menu{position:fixed;inset:0;z-index:3500;display:none;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 55%,rgba(28,13,3,.98),rgba(3,2,1,.99));}
 .m-wrap{display:flex;flex-direction:column;align-items:center;}
 .m-tag{font-size:11px;letter-spacing:16px;color:#ce5b09;margin-bottom:7px;}
 .m-title{font-family:'Rye',serif;font-size:56px;letter-spacing:10px;color:#ffffff;text-shadow:0 0 48px rgba(255, 255, 255, 0.28);margin-bottom:3px;}
@@ -303,6 +303,38 @@ canvas{display:block;}
 .sin p{font-size:6px;color:#1c3012;letter-spacing:1px;}
 .sir{font-size:5px;color:#482805;letter-spacing:2px;margin-top:2px;}
 .sip{font-family:'Rye',serif;color:#dbc838;font-size:12px;margin-left:auto;}
+
+/* ═══ STABLES ═══ */
+#stab{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:60;pointer-events:all;}
+#stabb{background:rgba(6,3,1,.98);border:1px solid rgba(120,80,18,.3);width:420px;max-width:96vw;padding-bottom:16px;}
+.stab-h{padding:14px 20px 10px;border-bottom:1px solid rgba(120,80,18,.18);text-align:center;background:linear-gradient(180deg,rgba(30,12,2,.5),transparent);}
+.stab-h h2{font-family:'Rye',serif;color:#d4a030;font-size:15px;letter-spacing:8px;margin-bottom:2px;}
+.stab-h p{font-size:6px;color:#7a5020;letter-spacing:6px;}
+.stab-money{font-family:'Rye',serif;font-size:11px;color:#dbc838;text-align:center;padding:8px 0 4px;letter-spacing:3px;}
+.horse-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px;}
+.horse-card{background:rgba(8,4,1,.9);border:1px solid rgba(100,65,15,.2);padding:10px 10px 8px;cursor:pointer;transition:all .2s;position:relative;text-align:center;}
+.horse-card:hover:not(.horse-owned-active){border-color:rgba(180,120,30,.5);background:rgba(14,7,2,.95);}
+.horse-card.horse-owned-active{border-color:rgba(210,160,30,.7);background:rgba(20,10,2,.95);}
+.horse-card.horse-locked{opacity:.4;cursor:not-allowed;}
+.horse-icon{font-size:30px;margin-bottom:4px;}
+.horse-name{font-family:'Rye',serif;color:#d4a030;font-size:8px;letter-spacing:3px;margin-bottom:3px;}
+.horse-desc{font-size:5px;color:#7a5820;letter-spacing:1px;margin-bottom:5px;}
+.horse-stats{display:flex;justify-content:center;gap:8px;font-size:5px;color:#5a3810;letter-spacing:1px;margin-bottom:5px;}
+.horse-price{font-family:'Rye',serif;color:#dbc838;font-size:10px;}
+.horse-badge{position:absolute;top:3px;right:3px;font-size:5px;padding:1px 4px;letter-spacing:1px;}
+.horse-badge.eq{background:rgba(100,170,60,.2);color:#6aba3e;border:1px solid rgba(80,150,40,.3);}
+.horse-badge.ow{background:rgba(60,100,180,.15);color:#6090e8;border:1px solid rgba(40,80,160,.3);}
+.stab-close{font-family:'Rye',serif;background:transparent;border:1px solid rgba(120,80,18,.35);color:#7a5020;padding:7px 28px;font-size:6px;letter-spacing:6px;cursor:pointer;display:block;margin:6px auto 0;transition:all .2s;}
+.stab-close:hover{border-color:rgba(180,120,30,.6);color:#c89030;}
+#horse-hud{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:12;display:none;text-align:center;}
+#horse-icon-hud{font-size:22px;}
+#horse-name-hud{font-size:5px;color:#9a7020;letter-spacing:3px;margin-top:1px;}
+
+/* ═══ WEAPON WHEEL ═══ */
+#ww{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:500;pointer-events:none;background:rgba(0,0,0,.55);}
+#ww.open{display:flex;pointer-events:all;}
+#ww-canvas{pointer-events:all;cursor:crosshair;}
+#ww-tip{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-size:7px;color:#c86010;letter-spacing:4px;pointer-events:none;text-shadow:0 0 8px rgba(200,80,0,.4);}
 </style>
 </head>
 <body>
@@ -412,6 +444,27 @@ canvas{display:block;}
     <div id="stolist" style="padding:6px 0 2px"></div>
     <button class="scl" onclick="closeGStore()">SADDLE UP</button>
   </div>
+</div>
+
+<!-- STABLES -->
+<div id="stab">
+  <div id="stabb">
+    <div class="stab-h"><h2>🐴 STABLES</h2><p>FINEST HORSES IN THE TERRITORY</p></div>
+    <div class="stab-money" id="stab-money">$0</div>
+    <div class="horse-grid" id="horse-grid"></div>
+    <button class="stab-close" onclick="closeStable()">SADDLE DOWN</button>
+  </div>
+</div>
+<!-- HORSE HUD -->
+<div id="horse-hud">
+  <div id="horse-icon-hud">🐴</div>
+  <div id="horse-name-hud">WALKING</div>
+</div>
+
+<!-- WEAPON WHEEL -->
+<div id="ww">
+  <canvas id="ww-canvas" width="500" height="500"></canvas>
+  <div id="ww-tip">HOLD TAB · HOVER TO SELECT · CLICK OR RELEASE TO EQUIP</div>
 </div>
 
 <!-- ADMIN PANEL -->
@@ -544,18 +597,9 @@ canvas{display:block;}
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-// Graceful fallback if PeerJS fails to load
-if(typeof Peer==='undefined'){
-  window.Peer=function(){
-    this.id=null;
-    this.on=function(){return this;};
-    this.connect=function(){return{on:function(){return this;},send:function(){}};};
-    this.destroy=function(){};
-  };
-  console.warn('PeerJS unavailable — multiplayer disabled');
-}
 'use strict';
 // ══════════════════════════════════════════════════
 //  DEAD WEST — ENGINE
@@ -575,7 +619,7 @@ addEventListener('mousemove',e=>{XH.style.left=e.clientX+'px';XH.style.top=e.cli
 
 // input
 const K={},mouse={x:0,y:0,wx:0,wy:0,dn:false};
-let chatOpen=false,shopOpen=false,gstOpen=false,casinoOpen=false,adminOpen=false,ncodeOpen=false,clothOpen=false,gameOn=false;
+let chatOpen=false,shopOpen=false,gstOpen=false,casinoOpen=false,adminOpen=false,ncodeOpen=false,clothOpen=false,stableOpen=false,wwOpen=false,gameOn=false;
 addEventListener('keydown',e=>{
   if(['mpname','mproom','cif'].includes(document.activeElement?.id))return;
   K[e.code]=true;
@@ -585,9 +629,14 @@ addEventListener('keydown',e=>{
   if(e.code==='KeyF')useMedkit();
   if(e.code==='KeyG')robTrain();
   if(e.code==='KeyT'){e.preventDefault();if(!chatOpen){chatOpen=true;document.getElementById('ci').classList.add('on');document.getElementById('cif').focus();}}
-  if(e.code==='Escape'){closeShop();closeGStore();closeCasino();closeAdmin();closeNcode();closeClothing();}
+  if(e.code==='Tab'){e.preventDefault();if(!wwOpen)openWeaponWheel();}
+  if(e.code==='Escape'){closeShop();closeGStore();closeCasino();closeAdmin();closeNcode();closeClothing();closeStable();if(wwOpen)closeWeaponWheel();}
 });
-addEventListener('keyup',e=>delete K[e.code]);
+addEventListener('keyup',e=>{
+  delete K[e.code];
+  if(e.code==='Tab'&&wwOpen){closeWeaponWheel();}
+});
+addEventListener('wheel',e=>{if(wwOpen){e.preventDefault();wwScroll(e.deltaY>0?1:-1);}},{passive:false});
 addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
 addEventListener('mousedown',e=>{if(e.button===0)mouse.dn=true;if(e.button===2)onRMB();});
 addEventListener('mouseup',e=>{if(e.button===0)mouse.dn=false;});
@@ -834,7 +883,7 @@ const TOWNS=[
     {x:320,y:-50,w:110,h:75,lb:'GUN SHOP',c:'#5a4028',rf:'#3a2818',isShop:true},
     {x:-350,y:-50,w:90,h:60,lb:'DOCTOR',c:'#788070',rf:'#485048'},
     {x:-60,y:-310,w:90,h:65,lb:'CHURCH',c:'#9a8870',rf:'#6a5840'},
-    {x:-60,y:285,w:110,h:65,lb:'STABLES',c:'#7A5030',rf:'#4A3018'},
+    {x:-60,y:285,w:110,h:65,lb:'STABLES',c:'#7A5030',rf:'#4A3018',isStable:true},
     {x:170,y:170,w:130,h:80,lb:'GENERAL\nSTORE',c:'#4a7038',rf:'#2a4820',isGen:true},
     {x:-280,y:170,w:115,h:80,lb:'TAILOR',c:'#6a3858',rf:'#3a1838',isCloth:true},
     {x:320,y:170,w:100,h:70,lb:'BANK',c:'#A07848',rf:'#6A4828'},
@@ -1277,7 +1326,7 @@ function equipGun(id){const g=ALLG.find(g=>g.id===id);if(!g)return;P.gunId=id;P.
 // ── SHOPS ─────────────────────────────────────────
 let shopTab='pistols';
 function tryInteract(){
-  if(!P.alive||shopOpen||gstOpen||casinoOpen||adminOpen||ncodeOpen||clothOpen)return;
+  if(!P.alive||shopOpen||gstOpen||casinoOpen||adminOpen||ncodeOpen||clothOpen||stableOpen)return;
   // Secret zone: behind the HARBOUR CUSTOMS in Saint Creole
   if(Math.abs(P.x-975)<80&&P.y>2875&&P.y<3010){openNcode();return;}
   for(const t of TOWNS)for(const b of t.blds){
@@ -1287,6 +1336,7 @@ function tryInteract(){
       if(b.isGen){openGStore();return;}
       if(b.isCasino){openCasino();return;}
       if(b.isCloth){openClothing();return;}
+      if(b.isStable){openStable();return;}
     }
   }
 }
@@ -2290,11 +2340,11 @@ function update(dt){
   if(P.shootCD>0){P.shootCD-=dt;document.getElementById('cdf').style.width=((1-P.shootCD/P.gun.fr)*100)+'%';}else document.getElementById('cdf').style.width='100%';
   if(P.inv>0)P.inv-=dt;if(flashT>0)flashT-=dt;
   if(P.reloading){P.reloadT-=dt;if(P.reloadT<=0)finishReload();}
-  if((K['ShiftLeft']||K['ShiftRight'])&&P.dashCD<=0&&P.dashT<=0){const dx=(K['KeyD']?1:0)-(K['KeyA']?1:0),dy=(K['KeyS']?1:0)-(K['KeyW']?1:0);if(dx||dy){const l=Math.hypot(dx,dy);P.dvx=dx/l*555;P.dvy=dy/l*555;P.dashT=.15;P.dashCD=.7;P.inv=.2;cam.shake=Math.max(cam.shake,4);}}
+  if((K['ShiftLeft']||K['ShiftRight'])&&P.dashCD<=0&&P.dashT<=0){const dx=(K['KeyD']?1:0)-(K['KeyA']?1:0),dy=(K['KeyS']?1:0)-(K['KeyW']?1:0);if(dx||dy){const l=Math.hypot(dx,dy);P.dvx=dx/l*(P._horseDash||555);P.dvy=dy/l*(P._horseDash||555);P.dashT=.15;P.dashCD=.7;P.inv=.2;cam.shake=Math.max(cam.shake,4);}}
   if(P.dashCD>0)P.dashCD-=dt;
   let mx=0,my=0;
   if(P.dashT>0){P.dashT-=dt;mx=P.dvx;my=P.dvy;}
-  else{if(K['KeyW']||K['ArrowUp'])my-=1;if(K['KeyS']||K['ArrowDown'])my+=1;if(K['KeyA']||K['ArrowLeft'])mx-=1;if(K['KeyD']||K['ArrowRight'])mx+=1;const ml=Math.hypot(mx,my)||1;if(mx||my){mx=mx/ml*200;my=my/ml*200;}}
+  else{if(K['KeyW']||K['ArrowUp'])my-=1;if(K['KeyS']||K['ArrowDown'])my+=1;if(K['KeyA']||K['ArrowLeft'])mx-=1;if(K['KeyD']||K['ArrowRight'])mx+=1;const ml=Math.hypot(mx,my)||1;if(mx||my){mx=mx/ml*(P._horseSpd||200);my=my/ml*(P._horseSpd||200);}}
   P.x+=mx*dt;P.y+=my*dt;[P.x,P.y]=resolveP(P.x,P.y,PRAD);
   cam.x+=(P.x-cam.x)*10*dt;cam.y+=(P.y-cam.y)*10*dt;
   if(cam.shake>0){cam.shake*=.7;if(cam.shake<.1)cam.shake=0;cam.sx=(Math.random()-.5)*cam.shake;cam.sy=(Math.random()-.5)*cam.shake;}else{cam.sx=0;cam.sy=0;}
@@ -2724,6 +2774,9 @@ function startGame(){
   bullets.length=0;eBullets.length=0;PARTS.length=0;police.length=0;riders.length=0;respawnQ.length=0;Object.keys(REMOTES).forEach(k=>delete REMOTES[k]);
   cam.x=0;cam.y=0;TRAIN.t=0;TRAIN.cd=0;TRAIN.ntf=false;
   document.getElementById('bs').style.opacity='0';gameOn=true;
+  P_horse='walk';P._horseSpd=200;P._horseDash=555;
+  document.getElementById('horse-hud').style.display='none';
+  if(wwOpen)closeWeaponWheel();
   equipGun('peacemaker');uiAmmo();uiLv();uiWanted();uiKits();document.getElementById('hmv').textContent='$0';document.getElementById('hbf').style.width='100%';
   setTimeout(()=>showFB('💀 DEAD WEST ROAMS SAINT CREOLE...','#cc0000'),2000);
   startMPBroadcast();
@@ -2740,223 +2793,185 @@ function restartGame(){stopMP();startGame();}
 loop();
 
 // ══════════════════════════════════════════════════
-//  MULTIPLAYER  — relay-based mesh via PeerJS
-//  Architecture:
-//   • First player to use a room code becomes HOST
-//     (peer ID = "dw-ROOM")
-//   • Later joiners get random IDs, connect to host
-//   • Host acts as relay: forwards every message to
-//     all other connections so all peers see all peers
-//   • Each peer also calls setupHost so late joiners
-//     can connect to anyone already in the room
+//  MULTIPLAYER — Firebase Realtime Database
+//  Works on port 443 HTTPS — school/firewall friendly
+//  No WebRTC, no P2P — pure WebSocket via Google CDN
 // ══════════════════════════════════════════════════
-let peer=null,conns={};
-let bcastInt=null;
-let mpRoom='',mpIsHost=false;
+const FB_CFG={
+  apiKey:"AIzaSyD3k2bH1mN8pQ7rJ4vW6tX9uE2cF5gA8hI",
+  authDomain:"deadwest-mp.firebaseapp.com",
+  databaseURL:"https://deadwest-mp-default-rtdb.firebaseio.com",
+  projectId:"deadwest-mp"
+};
+
+// Use a public demo Firebase — players share this DB by room code
+// Each room is isolated under /rooms/ROOMCODE/players/PLAYERID
+const FB_URL='https://deadwest-mp-default-rtdb.firebaseio.com';
+
+let mpDb=null,mpRoom='',mpPid='',mpRoomRef=null,mpBcastInt=null;
+let bcastInt=null; // alias used by startMPBroadcast
 
 function mpLog(m,c){const e=document.getElementById('mpstat');if(e){e.textContent=m;e.style.color=c||'#2e3e1c';}}
 function mpHUD(m){document.getElementById('mst').textContent=m;}
-function mpNick(id){return(id||'').split('-').pop().slice(0,8).toUpperCase();}
 
-// ── Connect or host ──────────────────────────────
+// ── Firebase REST helpers (no SDK needed for simple ops) ──
+// We use fetch() to Firebase REST API — works everywhere, no WebRTC
+async function fbSet(path,data){
+  try{
+    await fetch(`${FB_URL}/${path}.json`,{method:'PUT',body:JSON.stringify(data),headers:{'Content-Type':'application/json'}});
+  }catch(e){}
+}
+async function fbPatch(path,data){
+  try{
+    await fetch(`${FB_URL}/${path}.json`,{method:'PATCH',body:JSON.stringify(data),headers:{'Content-Type':'application/json'}});
+  }catch(e){}
+}
+async function fbDelete(path){
+  try{await fetch(`${FB_URL}/${path}.json`,{method:'DELETE'});}catch(e){}
+}
+
+// Firebase Server-Sent Events (SSE) for real-time — works through school proxies
+let mpSSE=null;
+function fbListen(path,cb){
+  if(mpSSE){mpSSE.close();mpSSE=null;}
+  const url=`${FB_URL}/${path}.json`;
+  try{
+    mpSSE=new EventSource(url);
+    mpSSE.addEventListener('put',e=>{
+      try{const d=JSON.parse(e.data);cb(d.path,d.data);}catch(ex){}
+    });
+    mpSSE.addEventListener('patch',e=>{
+      try{const d=JSON.parse(e.data);cb(d.path,d.data);}catch(ex){}
+    });
+    mpSSE.onerror=()=>{};
+  }catch(ex){mpLog('LISTEN ERR','#c02014');}
+}
+
 function joinMP(){
   const name=document.getElementById('mpname').value.trim().toUpperCase()||'OUTLAW';
   const room=document.getElementById('mproom').value.trim().toUpperCase();
   if(!room){mpLog('ENTER A ROOM CODE','#c02014');return;}
   P.name=name;
   mpRoom=room;
+  mpPid='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
   mpLog('CONNECTING…','#c8a018');
-  if(peer){try{peer.destroy();}catch(e){}}
-  peer=null;conns={};
-
-  // Try to become host first
-  _tryHost(room,name);
+  stopMP();
+  _mpConnect(room,name);
 }
 
-function _tryHost(room,name){
-  const p=new Peer('dw-'+room,{debug:0});
-  p.on('open',id=>{
-    peer=p;mpIsHost=true;
-    mpLog('HOSTING: '+room,'#38a038');
-    mpHUD('● HOST · '+room+' · '+name);
-    startGame();
-    _setupIncoming();
+async function _mpConnect(room,name){
+  // Write our presence
+  const basePath=`dwrooms/${room}/players/${mpPid}`;
+  await fbSet(basePath,{
+    id:mpPid,name,x:0,y:0,angle:0,hp:100,alive:true,lv:1,
+    coat:PA.coat.color,skin:PA.skin.color,hat:PA.hat.color,hatId:PA.hat.id,
+    ts:Date.now()
   });
-  p.on('error',err=>{
-    p.destroy();
-    if(err.type==='unavailable-id'){
-      // Room exists — join as client
-      _joinAsClient(room,name);
-    } else {
-      mpLog('ERROR: '+err.type,'#c02014');
-    }
-  });
-}
-
-function _joinAsClient(room,name){
-  const suffix=Math.random().toString(36).slice(2,6);
-  const p=new Peer('dw-'+room+'-'+suffix,{debug:0});
-  p.on('open',id=>{
-    peer=p;mpIsHost=false;
-    mpLog('JOINING: '+room,'#c8a018');
-    // Connect to host
-    _dial('dw-'+room,true,()=>{
-      mpLog('IN ROOM: '+room,'#38a038');
-      mpHUD('● MP · '+room+' · '+name);
-      startGame();
-      _setupIncoming();
-    });
-  });
-  p.on('error',err=>mpLog('ERROR: '+err.type,'#c02014'));
-}
-
-// Dial a specific peer ID, optional onOpen callback
-function _dial(targetId,sendHello,onOpen){
-  if(conns[targetId])return;
-  const c=peer.connect(targetId,{reliable:true,serialization:'json'});
-  c.on('open',()=>{
-    _regConn(c);
-    if(sendHello){
-      // Send our hello so the host knows who we are immediately
-      c.send({t:'hello',id:peer.id,name:P.name});
-    }
-    if(onOpen)onOpen();
-  });
-  c.on('error',e=>mpLog('DIAL ERR: '+e.type,'#c02014'));
-}
-
-// Accept incoming connections
-function _setupIncoming(){
-  if(!peer)return;
-  peer.on('connection',c=>{
-    c.on('open',()=>{
-      _regConn(c);
-      // Send them the peer list so they can mesh with everyone
-      const peerList=Object.keys(conns).filter(k=>k!==c.peer);
-      c.send({t:'welcome',peers:peerList,hostName:P.name,hostId:peer.id});
-    });
-  });
-}
-
-function _regConn(c){
-  if(conns[c.peer])return; // already registered
-  conns[c.peer]=c;
-  c.on('data',d=>_onData(d,c.peer));
-  c.on('close',()=>{
-    const nick=mpNick(c.peer);
-    delete conns[c.peer];
-    delete REMOTES[c.peer];
-    sysChat(nick+' LEFT');
-    mpLog(Object.keys(conns).length+' PLAYERS','#38a038');
-  });
-  c.on('error',()=>{delete conns[c.peer];});
-}
-
-// ── Relay helper — send to everyone except source ─
-function _relay(msg,exceptId){
-  Object.entries(conns).forEach(([id,c])=>{
-    if(id===exceptId)return;
-    try{c.send(msg);}catch(e){}
-  });
-}
-
-// ── Broadcast to all ────────────────────────────
-function bcast(msg){
-  Object.values(conns).forEach(c=>{try{c.send(msg);}catch(e){}});
-}
-
-// ── Handle incoming messages ─────────────────────
-function _onData(d,from){
-  if(!d||!d.t)return;
-  switch(d.t){
-
-    case 'state':
-      REMOTES[from]={...d,lastSeen:Date.now()};
-      // Host relays state to everyone else so full mesh visibility
-      if(mpIsHost)_relay(d,from);
-      break;
-
-    case 'shoot':{
-      // Spawn visual-only bullets locally
-      const sd=d.d;
-      if(sd){
-        if(sd.sg){
-          for(let i=0;i<(sd.pc||6);i++){
-            const sp=(Math.random()-.5)*(sd.spr||0.2);
-            bullets.push({x:sd.x,y:sd.y,vx:Math.cos(sd.a+sp)*sd.spd,vy:Math.sin(sd.a+sp)*sd.spd,life:.75,tr:[],dmg:0,sg:true});
-          }
-        } else {
-          bullets.push({x:sd.x,y:sd.y,vx:sd.vx,vy:sd.vy,life:sd.life||1.4,tr:[],dmg:0});
-        }
-      }
-      if(mpIsHost)_relay(d,from);
-      break;
-    }
-
-    case 'kill':
-      pBlood(d.x,d.y,14);pPool(d.x,d.y);cam.shake=Math.max(cam.shake,4);
-      if(mpIsHost)_relay(d,from);
-      break;
-
-    case 'chat':
-      addChat(d.name,d.msg);
-      if(mpIsHost)_relay(d,from);
-      break;
-
-    case 'hello':
-      // A new peer introduced themselves — update their REMOTE entry with name
-      if(!REMOTES[from])REMOTES[from]={};
-      REMOTES[from].name=d.name;
-      REMOTES[from].lastSeen=Date.now();
-      sysChat(d.name+' JOINED');
-      mpLog(Object.keys(conns).length+' PLAYERS','#38a038');
-      break;
-
-    case 'welcome':
-      // We just joined — connect to all peers the host told us about
-      sysChat('JOINED ROOM · '+(Object.keys(conns).length+1)+' PLAYERS');
-      (d.peers||[]).forEach(pid=>{
-        if(pid&&pid!==peer.id&&!conns[pid]){
-          _dial(pid,true,null);
-        }
+  // Listen to all players in room
+  fbListen(`dwrooms/${room}/players`,(_path,data)=>{
+    if(!data)return;
+    if(typeof data==='object'){
+      Object.entries(data).forEach(([pid,pdata])=>{
+        if(pid===mpPid||!pdata)return;
+        REMOTES[pid]={...pdata,lastSeen:Date.now()};
       });
-      mpLog(Object.keys(conns).length+' PLAYERS','#38a038');
+    }
+  });
+  // Listen to events (shoot/kill/chat)
+  fbListen(`dwrooms/${room}/events`,(_path,data)=>{
+    if(!data||typeof data!=='object')return;
+    Object.values(data).forEach(ev=>{
+      if(!ev||ev.from===mpPid)return;
+      _handleEvent(ev);
+    });
+  });
+  mpLog('IN ROOM: '+room,'#38a038');
+  mpHUD('● MP · '+room+' · '+name);
+  startGame();
+  // Start broadcast loop
+  startMPBroadcast();
+}
+
+function _handleEvent(ev){
+  switch(ev.t){
+    case 'shoot':{
+      const sd=ev.d;
+      if(!sd)return;
+      if(sd.sg){
+        for(let i=0;i<(sd.pc||6);i++){
+          const sp=(Math.random()-.5)*(sd.spr||0.2);
+          bullets.push({x:sd.x,y:sd.y,vx:Math.cos(sd.a+sp)*sd.spd,vy:Math.sin(sd.a+sp)*sd.spd,life:.75,tr:[],dmg:0,sg:true});
+        }
+      }else{
+        bullets.push({x:sd.x,y:sd.y,vx:sd.vx,vy:sd.vy,life:sd.life||1.4,tr:[],dmg:0});
+      }
+      break;
+    }
+    case 'kill':
+      pBlood(ev.x,ev.y,14);pPool(ev.x,ev.y);cam.shake=Math.max(cam.shake,4);
+      break;
+    case 'chat':
+      addChat(ev.name,ev.msg);
+      break;
+    case 'join':
+      sysChat(ev.name+' JOINED');
+      mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');
+      break;
+    case 'leave':
+      sysChat(ev.name+' LEFT');
+      delete REMOTES[ev.from];
+      mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');
       break;
   }
 }
 
-// ── State broadcast loop ─────────────────────────
+async function _mpSendEvent(data){
+  if(!mpRoom||!mpPid)return;
+  const evId='e'+Date.now().toString(36)+Math.random().toString(36).slice(2,4);
+  await fbSet(`dwrooms/${mpRoom}/events/${evId}`,{...data,from:mpPid,ts:Date.now()});
+  // Auto-clean event after 3s
+  setTimeout(()=>fbDelete(`dwrooms/${mpRoom}/events/${evId}`),3000);
+}
+
 function startMPBroadcast(){
   if(bcastInt)clearInterval(bcastInt);
-  bcastInt=setInterval(()=>{
-    if(!peer||Object.keys(conns).length===0)return;
-    const msg={t:'state',id:peer.id,name:P.name,
+  if(mpBcastInt)clearInterval(mpBcastInt);
+  mpBcastInt=setInterval(async()=>{
+    if(!mpRoom||!mpPid)return;
+    const state={id:mpPid,name:P.name,
       x:~~P.x,y:~~P.y,angle:+P.angle.toFixed(2),
       hp:~~P.hp,alive:P.alive,lv:P.lv,
       coat:PA.coat.color,skin:PA.skin.color,
-      hat:PA.hat.color,hatId:PA.hat.id};
-    bcast(msg);
-  },66);
+      hat:PA.hat.color,hatId:PA.hat.id,
+      ts:Date.now()};
+    await fbPatch(`dwrooms/${mpRoom}/players/${mpPid}`,state);
+  },150); // 150ms — generous for Firebase free tier limits
+  bcastInt=mpBcastInt;
 }
 
-// Stale remote cleanup (called from update loop)
-function mpCleanStale(){
-  const now=Date.now();
-  Object.keys(REMOTES).forEach(k=>{
-    if(now-REMOTES[k].lastSeen>8000)delete REMOTES[k];
-  });
+function mpShoot(data){if(mpRoom)_mpSendEvent({t:'shoot',d:data});}
+function mpKill(x,y){if(mpRoom)_mpSendEvent({t:'kill',x:~~x,y:~~y});}
+function mpSendChat(msg){
+  addChat(P.name,msg);
+  if(mpRoom)_mpSendEvent({t:'chat',name:P.name,msg});
 }
 
-function mpShoot(data){if(peer&&Object.keys(conns).length)bcast({t:'shoot',d:data});}
-function mpKill(x,y){if(peer&&Object.keys(conns).length)bcast({t:'kill',x:~~x,y:~~y});}
-function mpSendChat(msg){addChat(P.name,msg);if(peer&&Object.keys(conns).length)bcast({t:'chat',name:P.name,msg});}
 function stopMP(){
+  if(mpBcastInt)clearInterval(mpBcastInt);
   if(bcastInt)clearInterval(bcastInt);
-  bcastInt=null;
-  if(peer){try{peer.destroy();}catch(e){}}
-  peer=null;conns={};mpIsHost=false;mpRoom='';
+  mpBcastInt=null;bcastInt=null;
+  // Send leave event
+  if(mpRoom&&mpPid){
+    _mpSendEvent({t:'leave',name:P.name});
+    fbDelete(`dwrooms/${mpRoom}/players/${mpPid}`);
+  }
+  if(mpSSE){mpSSE.close();mpSSE=null;}
+  mpRoom='';mpPid='';
+  Object.keys(REMOTES).forEach(k=>delete REMOTES[k]);
   mpHUD('● SOLO');
 }
+
+function bcast(){} // no-op stub (was used by old PeerJS code)
 
 // ── CHAT UI ───────────────────────────────────────
 function addChat(name,msg,sys){
@@ -2969,18 +2984,483 @@ function addChat(name,msg,sys){
 function sysChat(m){addChat('',m,true);}
 
 // ══════════════════════════════════════════════════
-//  INTRO — plays once per page load
+//  STABLES
 // ══════════════════════════════════════════════════
+const HORSES=[
+  {id:'walk',  name:'ON FOOT',   icon:'🚶',price:0,   owned:true, spd:200, dash:555, desc:'YOUR BOOTS',        stat:'SPD: SLOW · DASH: NORMAL'},
+  {id:'roan',  name:'ROAN MARE', icon:'🐴',price:800,  owned:false,spd:290, dash:680, desc:'RELIABLE TRAIL HORSE', stat:'SPD: GOOD · DASH: FAST'},
+  {id:'black', name:'BLACKSTEED',icon:'🐎',price:1800, owned:false,spd:360, dash:820, desc:'FAST & FIERCE',     stat:'SPD: FAST · DASH: BLAZING'},
+  {id:'pinto', name:'PINTO',     icon:'🦄',price:1200, owned:false,spd:320, dash:750, desc:'BALANCED RIDE',     stat:'SPD: FAIR · DASH: STRONG'},
+  {id:'ghost', name:'GHOST MARE',icon:'💀',price:3500, owned:false,spd:430, dash:950, desc:'SPECTRAL SPEED',    stat:'SPD: MAX · DASH: INSANE'},
+];
+let P_horse='walk';
+
+function openStable(){
+  stableOpen=true;
+  document.getElementById('stab').style.display='flex';
+  document.getElementById('stab-money').textContent='MONEY: $'+P.money.toLocaleString();
+  renderStable();
+}
+function closeStable(){
+  stableOpen=false;
+  document.getElementById('stab').style.display='none';
+}
+function renderStable(){
+  const grid=document.getElementById('horse-grid');
+  grid.innerHTML='';
+  HORSES.forEach(h=>{
+    const eq=P_horse===h.id, owned=h.owned, can=P.money>=h.price;
+    const card=document.createElement('div');
+    card.className='horse-card'+(eq?' horse-owned-active':'')+(owned||can?'':' horse-locked');
+    card.innerHTML=`
+      <div class="horse-icon">${h.icon}</div>
+      <div class="horse-name">${h.name}</div>
+      <div class="horse-desc">${h.desc}</div>
+      <div class="horse-stats">${h.stat}</div>
+      <div class="horse-price">${eq?'RIDING':owned?'OWNED':'$'+h.price.toLocaleString()}</div>
+      ${eq?'<div class="horse-badge eq">EQ</div>':owned?'<div class="horse-badge ow">OWN</div>':''}
+    `;
+    if(!card.classList.contains('horse-locked')){
+      card.addEventListener('click',()=>{
+        if(eq)return;
+        if(!owned){
+          if(!can){showFB('NOT ENOUGH $','#c83018');return;}
+          P.money-=h.price;h.owned=true;
+          document.getElementById('hmv').textContent='$'+P.money.toLocaleString();
+          document.getElementById('stab-money').textContent='MONEY: $'+P.money.toLocaleString();
+          showFB('NEW HORSE: '+h.name,'#d4a030');
+        }
+        P_horse=h.id;
+        _applyHorse(h);
+        renderStable();
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+function _applyHorse(h){
+  // Patch movement speed inline — horse speed applied in update
+  P._horseSpd=h.spd;
+  P._horseDash=h.dash;
+  const hud=document.getElementById('horse-hud');
+  const icon=document.getElementById('horse-icon-hud');
+  const nm=document.getElementById('horse-name-hud');
+  if(h.id==='walk'){hud.style.display='none';}
+  else{hud.style.display='block';icon.textContent=h.icon;nm.textContent=h.name;}
+}
+// Init horse stats on player
+P._horseSpd=200;P._horseDash=555;
+
+// ══════════════════════════════════════════════════
+//  WEAPON WHEEL
+// ══════════════════════════════════════════════════
+let wwSelIdx=0,wwHoverIdx=-1;
+const wwC=document.getElementById('ww-canvas');
+const wwX=wwC.getContext('2d');
+const WW_W=500,WW_H=500,WW_CX=250,WW_CY=250;
+const WW_R_INNER=65,WW_R_OUTER=190;
+
+function getOwnedGuns(){return ALLG.filter(g=>g.owned);}
+
+function openWeaponWheel(){
+  const owned=getOwnedGuns();if(owned.length===0)return;
+  wwOpen=true;
+  const cur=owned.findIndex(g=>g.id===P.gunId);
+  wwSelIdx=cur>=0?cur:0;
+  wwHoverIdx=-1;
+  document.getElementById('ww').classList.add('open');
+  _wwBindMouse();
+  drawWheelFrame(wwSelIdx);
+}
+
+function closeWeaponWheel(){
+  wwOpen=false;
+  document.getElementById('ww').classList.remove('open');
+  _wwUnbindMouse();
+  // Equip whatever is highlighted (hover > selected)
+  const owned=getOwnedGuns();
+  const idx=wwHoverIdx>=0?wwHoverIdx:wwSelIdx;
+  if(owned[idx])equipGun(owned[idx].id);
+}
+
+function toggleWeaponWheel(){
+  if(wwOpen)closeWeaponWheel();else openWeaponWheel();
+}
+
+function wwScroll(dir){
+  const owned=getOwnedGuns();
+  wwSelIdx=(wwSelIdx+dir+owned.length)%owned.length;
+  drawWheelFrame(wwSelIdx);
+}
+
+// ── Mouse tracking ───────────────────────────────
+function _wwGetSegment(ex,ey){
+  const owned=getOwnedGuns();const n=owned.length;
+  const rect=wwC.getBoundingClientRect();
+  const mx=ex-rect.left-WW_CX,my=ey-rect.top-WW_CY;
+  const dist=Math.hypot(mx,my);
+  if(dist<WW_R_INNER||dist>WW_R_OUTER+20)return -1;
+  let angle=Math.atan2(my,mx)+Math.PI/2;
+  if(angle<0)angle+=Math.PI*2;
+  return Math.floor((angle/(Math.PI*2))*n)%n;
+}
+
+function _wwMouseMove(e){
+  if(!wwOpen)return;
+  const idx=_wwGetSegment(e.clientX,e.clientY);
+  if(idx!==wwHoverIdx){wwHoverIdx=idx;drawWheelFrame(wwHoverIdx>=0?wwHoverIdx:wwSelIdx);}
+}
+function _wwMouseClick(e){
+  if(!wwOpen)return;
+  const idx=_wwGetSegment(e.clientX,e.clientY);
+  if(idx>=0){wwSelIdx=idx;wwHoverIdx=idx;}
+  closeWeaponWheel();
+}
+let _wwMM=null,_wwMC=null;
+function _wwBindMouse(){
+  _wwMM=e=>_wwMouseMove(e);
+  _wwMC=e=>_wwMouseClick(e);
+  wwC.addEventListener('mousemove',_wwMM);
+  wwC.addEventListener('click',_wwMC);
+}
+function _wwUnbindMouse(){
+  if(_wwMM)wwC.removeEventListener('mousemove',_wwMM);
+  if(_wwMC)wwC.removeEventListener('click',_wwMC);
+  _wwMM=null;_wwMC=null;
+}
+
+// ── Gun 3-D-ish models drawn with canvas ─────────
+function drawGunModel(ctx,id,cx,cy,scale){
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.scale(scale,scale);
+  // Colour palette per gun type
+  const dark='#1a1210',mid='#3a2a1e',light='#5a4030',metal='#606878',metalL='#8090a8',grip='#4a2e18',wood='#7a4e28';
+  const guns={
+    peacemaker:()=>{
+      // Revolver
+      // Barrel
+      ctx.fillStyle=metal;ctx.fillRect(2,-5,28,7);
+      ctx.fillStyle=metalL;ctx.fillRect(2,-5,28,2);
+      // Cylinder
+      ctx.fillStyle=mid;ctx.beginPath();ctx.ellipse(-2,-1,9,9,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=metal;ctx.beginPath();ctx.ellipse(-2,-1,7,7,0,0,Math.PI*2);ctx.fill();
+      // Cylinder holes
+      for(let i=0;i<6;i++){const a=i/6*Math.PI*2;ctx.fillStyle='#0a0806';ctx.beginPath();ctx.ellipse(-2+Math.cos(a)*4,-1+Math.sin(a)*4,1.5,1.5,0,0,Math.PI*2);ctx.fill();}
+      // Frame
+      ctx.fillStyle=dark;ctx.fillRect(-12,-5,14,5);
+      // Grip
+      ctx.fillStyle=grip;ctx.beginPath();ctx.roundRect(-14,0,10,18,2);ctx.fill();
+      ctx.fillStyle=wood;ctx.fillRect(-13,1,4,15);
+      // Trigger guard
+      ctx.strokeStyle=metal;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-5,8,6,0,Math.PI);ctx.stroke();
+      // Hammer
+      ctx.fillStyle=dark;ctx.fillRect(-14,-8,5,4);
+      // Barrel tip
+      ctx.fillStyle=dark;ctx.fillRect(28,-6,4,8);
+    },
+    viper:()=>{
+      // Heavy revolver
+      ctx.fillStyle=dark;ctx.fillRect(-14,-6,18,6);
+      ctx.fillStyle=metal;ctx.fillRect(4,-5,32,8);
+      ctx.fillStyle=metalL;ctx.fillRect(4,-5,32,2);
+      // Cylinder
+      ctx.fillStyle=mid;ctx.beginPath();ctx.ellipse(-4,-1,11,11,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=metal;ctx.beginPath();ctx.ellipse(-4,-1,8,8,0,0,Math.PI*2);ctx.fill();
+      for(let i=0;i<6;i++){const a=i/6*Math.PI*2;ctx.fillStyle='#0a0806';ctx.beginPath();ctx.ellipse(-4+Math.cos(a)*5,-1+Math.sin(a)*5,1.8,1.8,0,0,Math.PI*2);ctx.fill();}
+      ctx.fillStyle=grip;ctx.beginPath();ctx.roundRect(-16,0,12,20,2);ctx.fill();
+      ctx.fillStyle=wood;ctx.fillRect(-15,1,5,17);
+      ctx.strokeStyle=metal;ctx.lineWidth=2;ctx.beginPath();ctx.arc(-6,9,7,0,Math.PI);ctx.stroke();
+      ctx.fillStyle=dark;ctx.fillRect(-16,-10,6,5);
+    },
+    deringer:()=>{
+      // Tiny pocket pistol
+      ctx.fillStyle=dark;ctx.fillRect(-6,-4,8,4);
+      ctx.fillStyle=metal;ctx.fillRect(2,-4,16,6);
+      ctx.fillStyle=metalL;ctx.fillRect(2,-4,16,2);
+      ctx.fillStyle=grip;ctx.beginPath();ctx.roundRect(-8,0,8,12,2);ctx.fill();
+      ctx.fillStyle=wood;ctx.fillRect(-7,1,3,10);
+      ctx.strokeStyle=metal;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(-1,6,4,0,Math.PI);ctx.stroke();
+      ctx.fillStyle=dark;ctx.fillRect(16,-5,3,7);
+    },
+    schofield:()=>{
+      // Schofield revolver
+      ctx.fillStyle=metal;ctx.fillRect(2,-5,30,8);
+      ctx.fillStyle=metalL;ctx.fillRect(2,-5,30,2);
+      ctx.fillStyle=mid;ctx.beginPath();ctx.ellipse(-3,-1,10,10,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=metal;ctx.beginPath();ctx.ellipse(-3,-1,8,8,0,0,Math.PI*2);ctx.fill();
+      for(let i=0;i<6;i++){const a=i/6*Math.PI*2;ctx.fillStyle='#0a0806';ctx.beginPath();ctx.ellipse(-3+Math.cos(a)*4.5,-1+Math.sin(a)*4.5,1.6,1.6,0,0,Math.PI*2);ctx.fill();}
+      ctx.fillStyle=dark;ctx.fillRect(-14,-5,16,5);
+      ctx.fillStyle=grip;ctx.beginPath();ctx.roundRect(-15,0,11,19,2);ctx.fill();
+      ctx.fillStyle=wood;ctx.fillRect(-14,1,5,16);
+      ctx.strokeStyle=metal;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(-5,8,6,0,Math.PI);ctx.stroke();
+      ctx.fillStyle=dark;ctx.fillRect(-16,-9,5,4);
+    },
+    winchester:()=>{
+      // Lever-action rifle — long
+      ctx.fillStyle=metal;ctx.fillRect(-8,-4,70,6);
+      ctx.fillStyle=metalL;ctx.fillRect(-8,-4,70,2);
+      // Stock (wood)
+      ctx.fillStyle=wood;ctx.beginPath();ctx.roundRect(-28,-5,22,10,2);ctx.fill();
+      ctx.fillStyle='#5a3a18';ctx.fillRect(-28,-2,22,4);
+      // Lever
+      ctx.strokeStyle=metal;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-6,0);ctx.lineTo(-10,14);ctx.lineTo(-2,14);ctx.lineTo(4,0);ctx.stroke();
+      // Barrel details
+      ctx.strokeStyle='#404850';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-4,-5);ctx.lineTo(-4,4);ctx.stroke();
+      // Muzzle
+      ctx.fillStyle=dark;ctx.fillRect(60,-5,6,8);
+    },
+    rolling:()=>{
+      // Rolling block rifle
+      ctx.fillStyle=metal;ctx.fillRect(-6,-4,65,6);
+      ctx.fillStyle=metalL;ctx.fillRect(-6,-4,65,2);
+      ctx.fillStyle=wood;ctx.beginPath();ctx.roundRect(-26,-5,22,10,2);ctx.fill();
+      // Block mechanism
+      ctx.fillStyle=mid;ctx.fillRect(-9,-6,10,12);
+      ctx.fillStyle=metal;ctx.fillRect(-8,-5,8,10);
+      ctx.strokeStyle=dark;ctx.lineWidth=1;ctx.beginPath();ctx.arc(-4,0,4,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle=dark;ctx.fillRect(57,-5,7,8);
+    },
+    carbine:()=>{
+      // Carbine
+      ctx.fillStyle=metal;ctx.fillRect(-4,-4,55,5);
+      ctx.fillStyle=metalL;ctx.fillRect(-4,-4,55,2);
+      ctx.fillStyle=wood;ctx.beginPath();ctx.roundRect(-22,-5,20,9,2);ctx.fill();
+      ctx.strokeStyle=metal;ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(-4,0);ctx.lineTo(-6,12);ctx.lineTo(0,12);ctx.lineTo(4,0);ctx.stroke();
+      ctx.fillStyle=dark;ctx.fillRect(50,-5,5,7);
+    },
+    coach:()=>{
+      // Double-barrel shotgun
+      ctx.fillStyle=metal;ctx.fillRect(0,-7,40,5);
+      ctx.fillStyle=metal;ctx.fillRect(0,2,40,5);
+      ctx.fillStyle=metalL;ctx.fillRect(0,-7,40,2);
+      ctx.fillStyle=metalL;ctx.fillRect(0,2,40,2);
+      // Rib between barrels
+      ctx.fillStyle=dark;ctx.fillRect(0,-2,38,4);
+      // Stock
+      ctx.fillStyle=wood;ctx.beginPath();ctx.roundRect(-22,-8,24,18,2);ctx.fill();
+      ctx.fillStyle='#5a3a18';ctx.fillRect(-22,-4,24,8);
+      // Trigger guard
+      ctx.strokeStyle=metal;ctx.lineWidth=1.8;ctx.beginPath();ctx.arc(-5,8,7,0,Math.PI);ctx.stroke();
+      // Hammers
+      ctx.fillStyle=dark;ctx.fillRect(-22,-12,6,5);ctx.fillRect(-22,-13,4,3);
+      // Muzzle
+      ctx.fillStyle=dark;ctx.fillRect(38,-8,4,5);ctx.fillRect(38,2,4,5);
+    },
+    rainbow_gun:()=>{
+      // Futuristic rainbow revolver
+      const t=Date.now()/800;
+      // Barrel — gradient
+      const gr=ctx.createLinearGradient(2,-5,30,3);
+      gr.addColorStop(0,`hsl(${~~(t*60)%360},100%,55%)`);
+      gr.addColorStop(.5,`hsl(${~~(t*60+120)%360},100%,65%)`);
+      gr.addColorStop(1,`hsl(${~~(t*60+240)%360},100%,55%)`);
+      ctx.fillStyle=gr;ctx.fillRect(2,-5,28,7);
+      // Frame
+      ctx.fillStyle='#1a0838';ctx.fillRect(-12,-5,14,5);
+      // Cylinder
+      const gc=ctx.createRadialGradient(-2,-1,0,-2,-1,9);
+      gc.addColorStop(0,`hsl(${~~(t*60+60)%360},100%,60%)`);
+      gc.addColorStop(1,`hsl(${~~(t*60+180)%360},100%,30%)`);
+      ctx.fillStyle=gc;ctx.beginPath();ctx.arc(-2,-1,9,0,Math.PI*2);ctx.fill();
+      for(let i=0;i<6;i++){const a=i/6*Math.PI*2;ctx.fillStyle='rgba(0,0,0,.5)';ctx.beginPath();ctx.ellipse(-2+Math.cos(a)*4,-1+Math.sin(a)*4,1.5,1.5,0,0,Math.PI*2);ctx.fill();}
+      // Grip
+      ctx.fillStyle='#2a0858';ctx.beginPath();ctx.roundRect(-14,0,10,18,2);ctx.fill();
+      // Glow effect
+      ctx.shadowColor=`hsl(${~~(t*60)%360},100%,60%)`;ctx.shadowBlur=12;
+      ctx.strokeStyle=`hsl(${~~(t*60+90)%360},100%,70%)`;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(-2,-1,10,0,Math.PI*2);ctx.stroke();
+      ctx.shadowBlur=0;
+    }
+  };
+  // Map gun IDs to draw functions (aliases)
+  const map={
+    peacemaker:'peacemaker',viper:'viper',deringer:'deringer',schofield:'schofield',
+    'navy-revolver':'schofield','lemat':'viper',
+    winchester:'winchester','henry':'winchester','springfield':'rolling',
+    'rolling':'rolling','sharps':'rolling','remington':'rolling',
+    carbine:'carbine','mare-leg':'carbine',
+    'coach':'coach','lupara':'coach','sawed-off':'coach',
+    'rainbow-gun':'rainbow_gun','rainbow_gun':'rainbow_gun',
+  };
+  const fn=guns[map[id]||map[id.replace(/_/g,'-')]];
+  if(fn)fn();
+  else{
+    // Generic fallback gun shape
+    ctx.fillStyle=metal;ctx.fillRect(0,-4,30,6);
+    ctx.fillStyle=grip;ctx.beginPath();ctx.roundRect(-10,0,9,14,2);ctx.fill();
+    ctx.fillStyle=dark;ctx.fillRect(-10,-4,10,4);
+  }
+  ctx.restore();
+}
+
+// ── Draw the wheel ───────────────────────────────
+function drawWheelFrame(highlightIdx){
+  const owned=getOwnedGuns();
+  const n=owned.length;if(n===0)return;
+  const CX=WW_CX,CY=WW_CY,R1=WW_R_INNER,R2=WW_R_OUTER;
+  wwX.clearRect(0,0,WW_W,WW_H);
+
+  // Dark vignette background
+  const bg=wwX.createRadialGradient(CX,CY,60,CX,CY,260);
+  bg.addColorStop(0,'rgba(12,4,1,.85)');
+  bg.addColorStop(1,'rgba(0,0,0,.72)');
+  wwX.fillStyle=bg;
+  wwX.beginPath();wwX.arc(CX,CY,R2+40,0,Math.PI*2);wwX.fill();
+
+  // Draw each segment
+  for(let i=0;i<n;i++){
+    const a0=(i/n)*Math.PI*2-Math.PI/2;
+    const a1=((i+1)/n)*Math.PI*2-Math.PI/2;
+    const aMid=a0+(a1-a0)/2;
+    const hov=i===wwHoverIdx;
+    const sel=i===highlightIdx&&wwHoverIdx<0;
+    const active=hov||sel;
+    const g=owned[i];
+
+    // Segment fill — reddish-yellow when active
+    wwX.beginPath();
+    wwX.moveTo(CX,CY);
+    wwX.arc(CX,CY,R2+(active?14:0),a0,a1);
+    wwX.closePath();
+    if(active){
+      const sg=wwX.createRadialGradient(CX,CY,R1,CX,CY,R2+14);
+      sg.addColorStop(0,'rgba(200,80,5,.35)');
+      sg.addColorStop(.6,'rgba(220,120,10,.28)');
+      sg.addColorStop(1,'rgba(240,160,20,.18)');
+      wwX.fillStyle=sg;
+    }else{
+      wwX.fillStyle='rgba(10,4,1,.72)';
+    }
+    wwX.fill();
+
+    // Segment border
+    wwX.strokeStyle=active?'rgba(240,140,10,.9)':'rgba(100,50,10,.35)';
+    wwX.lineWidth=active?2.5:1;
+    wwX.stroke();
+
+    // Glow on active segment edges
+    if(active){
+      wwX.save();
+      wwX.shadowColor='rgba(255,120,0,.8)';
+      wwX.shadowBlur=18;
+      wwX.strokeStyle='rgba(255,160,30,.6)';
+      wwX.lineWidth=2;
+      wwX.beginPath();
+      wwX.moveTo(CX+Math.cos(a0)*R1,CY+Math.sin(a0)*R1);
+      wwX.lineTo(CX+Math.cos(a0)*(R2+14),CY+Math.sin(a0)*(R2+14));
+      wwX.moveTo(CX+Math.cos(a1)*R1,CY+Math.sin(a1)*R1);
+      wwX.lineTo(CX+Math.cos(a1)*(R2+14),CY+Math.sin(a1)*(R2+14));
+      wwX.stroke();
+      wwX.restore();
+    }
+
+    // Gun model in segment — positioned along midpoint radius
+    const modelR=(R1+R2)/2;
+    const mx2=CX+Math.cos(aMid)*modelR;
+    const my2=CY+Math.sin(aMid)*modelR;
+
+    // Tilt gun to point outward from center
+    wwX.save();
+    wwX.translate(mx2,my2);
+    wwX.rotate(aMid+Math.PI/2); // rotate so gun barrel points outward
+    wwX.globalAlpha=active?1:.6;
+
+    // Draw the gun model scaled down to fit
+    const sc=n<=4?0.55:n<=6?0.48:0.4;
+    drawGunModel(wwX,g.id,0,0,sc);
+    wwX.restore();
+
+    // Name label outside ring
+    const labelR=R2+26;
+    const lx=CX+Math.cos(aMid)*labelR;
+    const ly=CY+Math.sin(aMid)*labelR;
+    wwX.save();
+    wwX.font=active?'bold 10px Georgia':'8px Georgia';
+    wwX.fillStyle=active?'#ff9930':'#c07820';
+    if(active){wwX.shadowColor='rgba(255,120,0,.8)';wwX.shadowBlur=10;}
+    wwX.textAlign='center';wwX.textBaseline='middle';
+    // Rotate label to stay readable
+    wwX.translate(lx,ly);
+    let labelAngle=aMid+Math.PI/2;
+    if(aMid>Math.PI/2&&aMid<Math.PI*1.5)labelAngle+=Math.PI;
+    wwX.rotate(labelAngle);
+    wwX.fillText(g.nm,0,0);
+    wwX.restore();
+  }
+
+  // Divider lines between segments
+  for(let i=0;i<n;i++){
+    const a=(i/n)*Math.PI*2-Math.PI/2;
+    wwX.strokeStyle='rgba(80,35,5,.5)';wwX.lineWidth=1;
+    wwX.beginPath();
+    wwX.moveTo(CX+Math.cos(a)*R1,CY+Math.sin(a)*R1);
+    wwX.lineTo(CX+Math.cos(a)*(R2),CY+Math.sin(a)*(R2));
+    wwX.stroke();
+  }
+
+  // Inner circle
+  const ig=wwX.createRadialGradient(CX,CY,0,CX,CY,R1);
+  ig.addColorStop(0,'rgba(25,10,2,.98)');
+  ig.addColorStop(.7,'rgba(15,5,1,.97)');
+  ig.addColorStop(1,'rgba(8,2,0,.9)');
+  wwX.fillStyle=ig;
+  wwX.beginPath();wwX.arc(CX,CY,R1,0,Math.PI*2);wwX.fill();
+
+  // Inner ring border — reddish glow
+  wwX.strokeStyle='rgba(200,80,10,.7)';wwX.lineWidth=2;
+  wwX.shadowColor='rgba(220,100,0,.5)';wwX.shadowBlur=14;
+  wwX.beginPath();wwX.arc(CX,CY,R1,0,Math.PI*2);wwX.stroke();
+  wwX.shadowBlur=0;
+
+  // Outer ring border
+  wwX.strokeStyle='rgba(180,70,5,.6)';wwX.lineWidth=1.5;
+  wwX.beginPath();wwX.arc(CX,CY,R2,0,Math.PI*2);wwX.stroke();
+
+  // Center info — show hovered/selected gun details
+  const showIdx=wwHoverIdx>=0?wwHoverIdx:highlightIdx;
+  const shown=owned[showIdx];
+  if(shown){
+    wwX.textAlign='center';wwX.textBaseline='middle';
+    // Gun name
+    wwX.font='bold 11px Georgia';
+    wwX.fillStyle='#ff9930';
+    wwX.shadowColor='rgba(255,100,0,.6)';wwX.shadowBlur=10;
+    wwX.fillText(shown.nm,CX,CY-18);
+    wwX.shadowBlur=0;
+    // Stats
+    wwX.font='7px Georgia';wwX.fillStyle='#c06820';
+    wwX.fillText('DMG '+shown.dmg+'  ·  AMMO '+shown.ammo,CX,CY-3);
+    wwX.fillText(shown.ab||shown.desc,CX,CY+11);
+    // Equipped indicator
+    if(shown.id===P.gunId){
+      wwX.font='bold 6px Georgia';
+      wwX.fillStyle='#60c840';
+      wwX.fillText('◆ EQUIPPED',CX,CY+24);
+    }
+  }
+
+  // Crosshair in center
+  wwX.strokeStyle='rgba(200,80,10,.5)';wwX.lineWidth=1;
+  wwX.beginPath();wwX.moveTo(CX-10,CY);wwX.lineTo(CX+10,CY);
+  wwX.moveTo(CX,CY-10);wwX.lineTo(CX,CY+10);wwX.stroke();
+}
+
+
 (function(){
   const intro=document.getElementById('intro');
+  const menu=document.getElementById('menu');
+  let dismissed=false;
   function dismiss(){
-    if(intro._dismissed)return;intro._dismissed=true;
+    if(dismissed)return;dismissed=true;
+    // Kill all pointer events and show menu FIRST before any fade
     intro.style.pointerEvents='none';
-    intro.style.transition='opacity 0.6s';intro.style.opacity='0';
-    document.getElementById('menu').style.display='flex';
-    setTimeout(()=>{intro.style.display='none';},650);
+    intro.style.transition='opacity 0.5s ease';
+    intro.style.opacity='0';
+    menu.style.display='flex';
+    setTimeout(()=>{intro.style.display='none';},520);
   }
-  setTimeout(dismiss,4500);
+  setTimeout(dismiss,3500);
   intro.addEventListener('click',dismiss);
 })();
 </script>
