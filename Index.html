@@ -750,8 +750,7 @@ canvas#c{cursor:none;display:block;}
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <script>
 'use strict';
 // ══════════════════════════════════════════════════
@@ -2947,110 +2946,101 @@ function restartGame(){stopMP();startGame();}
 loop();
 
 // ══════════════════════════════════════════════════
-//  MULTIPLAYER — Firebase Realtime Database
-//  Works on port 443 HTTPS — school/firewall friendly
-//  No WebRTC, no P2P — pure WebSocket via Google CDN
+//  MULTIPLAYER — MQTT over WebSocket
+//  Broker: broker.hivemq.com port 8884 (WSS/TLS)
+//  School-friendly: pure HTTPS/WSS port 8884, no WebRTC
+//  Free, no account needed, public broker
 // ══════════════════════════════════════════════════
-const FB_CFG={
-  apiKey:"AIzaSyD3k2bH1mN8pQ7rJ4vW6tX9uE2cF5gA8hI",
-  authDomain:"deadwest-mp.firebaseapp.com",
-  databaseURL:"https://deadwest-mp-default-rtdb.firebaseio.com",
-  projectId:"deadwest-mp"
+
+const MQTT_URL='wss://broker.hivemq.com:8884/mqtt';
+const MQTT_OPTS={
+  keepalive:30,
+  connectTimeout:8000,
+  clean:true,
+  reconnectPeriod:3000,
 };
 
-// Use a public demo Firebase — players share this DB by room code
-// Each room is isolated under /rooms/ROOMCODE/players/PLAYERID
-const FB_URL='https://deadwest-mp-default-rtdb.firebaseio.com';
-
-let mpDb=null,mpRoom='',mpPid='',mpRoomRef=null,mpBcastInt=null;
-let bcastInt=null; // alias used by startMPBroadcast
+let _mqClient=null;
+let mpRoom='',mpPid='',mpBcastInt=null,bcastInt=null;
 
 function mpLog(m,c){const e=document.getElementById('mpstat');if(e){e.textContent=m;e.style.color=c||'#2e3e1c';}}
 function mpHUD(m){document.getElementById('mst').textContent=m;}
 
-// ── Firebase REST helpers (no SDK needed for simple ops) ──
-// We use fetch() to Firebase REST API — works everywhere, no WebRTC
-async function fbSet(path,data){
-  try{
-    await fetch(`${FB_URL}/${path}.json`,{method:'PUT',body:JSON.stringify(data),headers:{'Content-Type':'application/json'}});
-  }catch(e){}
-}
-async function fbPatch(path,data){
-  try{
-    await fetch(`${FB_URL}/${path}.json`,{method:'PATCH',body:JSON.stringify(data),headers:{'Content-Type':'application/json'}});
-  }catch(e){}
-}
-async function fbDelete(path){
-  try{await fetch(`${FB_URL}/${path}.json`,{method:'DELETE'});}catch(e){}
-}
-
-// Firebase Server-Sent Events (SSE) for real-time — works through school proxies
-let mpSSE=null;
-function fbListen(path,cb){
-  if(mpSSE){mpSSE.close();mpSSE=null;}
-  const url=`${FB_URL}/${path}.json`;
-  try{
-    mpSSE=new EventSource(url);
-    mpSSE.addEventListener('put',e=>{
-      try{const d=JSON.parse(e.data);cb(d.path,d.data);}catch(ex){}
-    });
-    mpSSE.addEventListener('patch',e=>{
-      try{const d=JSON.parse(e.data);cb(d.path,d.data);}catch(ex){}
-    });
-    mpSSE.onerror=()=>{};
-  }catch(ex){mpLog('LISTEN ERR','#c02014');}
-}
+// MQTT topic helpers
+function _tPlayers(room){return `deadwest/${room}/players`;}
+function _tEvents(room){return `deadwest/${room}/events`;}
+function _tMyPlayer(room,pid){return `deadwest/${room}/players/${pid}`;}
 
 function joinMP(){
   const name=document.getElementById('mpname').value.trim().toUpperCase()||'OUTLAW';
   const room=document.getElementById('mproom').value.trim().toUpperCase();
   if(!room){mpLog('ENTER A ROOM CODE','#c02014');return;}
   P.name=name;
-  mpRoom=room;
-  mpPid='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-  mpLog('CONNECTING…','#c8a018');
   stopMP();
-  _mpConnect(room,name);
+  mpRoom=room;
+  mpPid='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  mpLog('CONNECTING…','#c8a018');
+  _mqConnect(room,name);
 }
 
-async function _mpConnect(room,name){
-  // Write our presence
-  const basePath=`dwrooms/${room}/players/${mpPid}`;
-  await fbSet(basePath,{
-    id:mpPid,name,x:0,y:0,angle:0,hp:100,alive:true,lv:1,
-    coat:PA.coat.color,skin:PA.skin.color,hat:PA.hat.color,hatId:PA.hat.id,
-    ts:Date.now()
+function _mqConnect(room,name){
+  const clientId='dw_'+mpPid;
+  try{
+    _mqClient=mqtt.connect(MQTT_URL,{...MQTT_OPTS,clientId});
+  }catch(e){
+    mpLog('MQTT UNAVAILABLE','#c02014');
+    console.error('MQTT connect error:',e);
+    return;
+  }
+
+  _mqClient.on('connect',()=>{
+    mpLog('IN ROOM: '+room,'#38a038');
+    mpHUD('● MP · '+room+' · '+name);
+
+    // Subscribe to players and events for this room
+    _mqClient.subscribe(_tPlayers(room)+'/#');
+    _mqClient.subscribe(_tEvents(room));
+
+    // Announce join
+    _mqPublishEvent({t:'join',name});
+
+    startGame();
   });
-  // Listen to all players in room
-  fbListen(`dwrooms/${room}/players`,(_path,data)=>{
-    if(!data)return;
-    if(typeof data==='object'){
-      Object.entries(data).forEach(([pid,pdata])=>{
-        if(pid===mpPid||!pdata)return;
-        REMOTES[pid]={...pdata,lastSeen:Date.now()};
-      });
+
+  _mqClient.on('error',e=>{
+    mpLog('CONNECTION ERROR','#c02014');
+    console.error('MQTT error:',e);
+  });
+
+  _mqClient.on('reconnect',()=>mpLog('RECONNECTING…','#c8a018'));
+
+  _mqClient.on('message',(topic,payload)=>{
+    let data;
+    try{data=JSON.parse(payload.toString());}catch(e){return;}
+
+    // Player state update
+    if(topic.startsWith(_tPlayers(room)+'/')){
+      const pid=topic.split('/').pop();
+      if(pid===mpPid)return;
+      if(data===null||data.alive===undefined){
+        delete REMOTES[pid];return;
+      }
+      REMOTES[pid]={...data,lastSeen:Date.now()};
+      return;
+    }
+
+    // Event message
+    if(topic===_tEvents(room)){
+      if(!data||data.from===mpPid)return;
+      _handleEvent(data);
     }
   });
-  // Listen to events (shoot/kill/chat)
-  fbListen(`dwrooms/${room}/events`,(_path,data)=>{
-    if(!data||typeof data!=='object')return;
-    Object.values(data).forEach(ev=>{
-      if(!ev||ev.from===mpPid)return;
-      _handleEvent(ev);
-    });
-  });
-  mpLog('IN ROOM: '+room,'#38a038');
-  mpHUD('● MP · '+room+' · '+name);
-  startGame();
-  // Start broadcast loop
-  startMPBroadcast();
 }
 
 function _handleEvent(ev){
   switch(ev.t){
     case 'shoot':{
-      const sd=ev.d;
-      if(!sd)return;
+      const sd=ev.d;if(!sd)return;
       if(sd.sg){
         for(let i=0;i<(sd.pc||6);i++){
           const sp=(Math.random()-.5)*(sd.spr||0.2);
@@ -3062,20 +3052,16 @@ function _handleEvent(ev){
       break;
     }
     case 'kill':
-      pBlood(ev.x,ev.y,14);pPool(ev.x,ev.y);cam.shake=Math.max(cam.shake,4);
-      break;
+      pBlood(ev.x,ev.y,14);pPool(ev.x,ev.y);cam.shake=Math.max(cam.shake,4);break;
     case 'chat':
-      addChat(ev.name,ev.msg);
-      break;
+      addChat(ev.name,ev.msg);break;
     case 'join':
       sysChat(ev.name+' JOINED');
-      mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');
-      break;
+      mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');break;
     case 'leave':
       sysChat(ev.name+' LEFT');
       delete REMOTES[ev.from];
-      mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');
-      break;
+      mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');break;
     case 'pint_money':
       if(ev.to===mpPid)_pintShowReq('money',ev.from,ev.name,{amt:ev.amt});break;
     case 'pint_item':
@@ -3098,27 +3084,34 @@ function _handleEvent(ev){
   }
 }
 
-async function _mpSendEvent(data){
-  if(!mpRoom||!mpPid)return;
-  const evId='e'+Date.now().toString(36)+Math.random().toString(36).slice(2,4);
-  await fbSet(`dwrooms/${mpRoom}/events/${evId}`,{...data,from:mpPid,ts:Date.now()});
-  // Auto-clean event after 3s
-  setTimeout(()=>fbDelete(`dwrooms/${mpRoom}/events/${evId}`),3000);
+function _mqPublish(topic,data,opts={}){
+  if(!_mqClient||!_mqClient.connected)return;
+  _mqClient.publish(topic,JSON.stringify(data),{qos:0,...opts});
 }
+
+function _mqPublishEvent(data){
+  if(!mpRoom||!mpPid)return;
+  _mqPublish(_tEvents(mpRoom),{...data,from:mpPid});
+}
+
+function _mpSendEvent(data){_mqPublishEvent(data);}
 
 function startMPBroadcast(){
   if(bcastInt)clearInterval(bcastInt);
   if(mpBcastInt)clearInterval(mpBcastInt);
-  mpBcastInt=setInterval(async()=>{
-    if(!mpRoom||!mpPid)return;
-    const state={id:mpPid,name:P.name,
+  if(!mpRoom||!mpPid)return;
+  mpBcastInt=setInterval(()=>{
+    if(!_mqClient||!_mqClient.connected||!mpRoom||!mpPid)return;
+    const state={
+      id:mpPid,name:P.name,
       x:~~P.x,y:~~P.y,angle:+P.angle.toFixed(2),
       hp:~~P.hp,alive:P.alive,lv:P.lv,
       coat:PA.coat.color,skin:PA.skin.color,
-      hat:PA.hat.color,hatId:PA.hat.id,
-      ts:Date.now()};
-    await fbPatch(`dwrooms/${mpRoom}/players/${mpPid}`,state);
-  },150); // 150ms — generous for Firebase free tier limits
+      hat:PA.hat.color,hatId:PA.hat.id
+    };
+    // Publish player state as retained so late joiners see it
+    _mqPublish(_tMyPlayer(mpRoom,mpPid),state,{retain:true});
+  },100);
   bcastInt=mpBcastInt;
 }
 
@@ -3133,18 +3126,21 @@ function stopMP(){
   if(mpBcastInt)clearInterval(mpBcastInt);
   if(bcastInt)clearInterval(bcastInt);
   mpBcastInt=null;bcastInt=null;
-  // Send leave event
-  if(mpRoom&&mpPid){
-    _mpSendEvent({t:'leave',name:P.name});
-    fbDelete(`dwrooms/${mpRoom}/players/${mpPid}`);
+  if(_mqClient){
+    if(mpRoom&&mpPid){
+      // Publish null (empty) retained message to clear our player slot
+      _mqPublish(_tMyPlayer(mpRoom,mpPid),null,{retain:true});
+      _mqPublishEvent({t:'leave',name:P.name});
+    }
+    try{_mqClient.end(true);}catch(e){}
+    _mqClient=null;
   }
-  if(mpSSE){mpSSE.close();mpSSE=null;}
   mpRoom='';mpPid='';
   Object.keys(REMOTES).forEach(k=>delete REMOTES[k]);
   mpHUD('● SOLO');
 }
 
-function bcast(){} // no-op stub (was used by old PeerJS code)
+function bcast(){}
 
 // ══════════════════════════════════════════════════
 //  PLAYER INTERACTION  (hold E near player)
