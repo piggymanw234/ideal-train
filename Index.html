@@ -335,6 +335,78 @@ canvas#c{cursor:none;display:block;}
 #ww.open{display:flex;pointer-events:all;}
 #ww-canvas{pointer-events:all;cursor:crosshair;}
 #ww-tip{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-size:7px;color:#c86010;letter-spacing:4px;pointer-events:none;text-shadow:0 0 8px rgba(200,80,0,.4);}
+
+
+
+
+
+/* ═══ PLAYER INTERACTION MENU ═══ */
+#pint{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:600;pointer-events:all;}
+#pint.open{display:flex;}
+#pintb{background:rgba(5,2,1,.97);border:1px solid rgba(180,100,10,.4);width:320px;max-width:96vw;box-shadow:0 0 50px rgba(150,60,0,.3);}
+.pint-head{padding:14px 20px 10px;border-bottom:1px solid rgba(140,70,8,.2);background:linear-gradient(180deg,rgba(25,8,1,.6),transparent);}
+.pint-head h2{font-family:'Rye',serif;color:#e09030;font-size:13px;letter-spacing:6px;margin:0 0 2px;}
+.pint-head p{font-size:6px;color:#7a4010;letter-spacing:4px;margin:0;}
+.pint-opts{padding:10px 14px 4px;}
+.pint-opt{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:6px;background:rgba(8,3,1,.8);border:1px solid rgba(100,50,5,.2);cursor:pointer;transition:all .18s;}
+.pint-opt:hover{border-color:rgba(200,100,10,.5);background:rgba(16,6,1,.9);}
+.poi{font-size:20px;width:28px;text-align:center;}
+.pot h3{font-family:'Rye',serif;color:#d08020;font-size:8px;letter-spacing:3px;margin:0 0 2px;}
+.pot p{font-size:5px;color:#604010;letter-spacing:1px;margin:0;}
+.pint-close{font-family:'Rye',serif;background:transparent;border:1px solid rgba(100,50,5,.25);color:#5a3010;padding:7px 28px;font-size:6px;letter-spacing:6px;cursor:pointer;display:block;margin:4px auto 12px;transition:all .18s;}
+.pint-close:hover{border-color:rgba(180,90,10,.5);color:#a06020;}
+.psub{display:none;padding:10px 14px 4px;}
+.psub.open{display:block;}
+.psub-back{font-family:'Rye',serif;background:transparent;border:none;color:#7a4010;font-size:6px;letter-spacing:4px;cursor:pointer;padding:0 0 8px;display:block;}
+.psub-back:hover{color:#c07020;}
+#pint-money-inp{width:100%;background:rgba(10,4,1,.9);border:none;border-bottom:1px solid rgba(160,80,10,.4);color:#e0a030;font-family:'Rye',serif;font-size:18px;padding:8px 4px;outline:none;letter-spacing:6px;text-align:center;margin:8px 0 4px;box-sizing:border-box;}
+.pint-money-presets{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px;}
+.pint-mp{font-family:'Rye',serif;background:rgba(10,4,1,.8);border:1px solid rgba(120,60,5,.25);color:#b07020;padding:4px 10px;font-size:6px;letter-spacing:3px;cursor:pointer;flex:1;text-align:center;}
+.pint-mp:hover{border-color:rgba(200,100,10,.5);color:#e09030;}
+.pint-send-btn{font-family:'Rye',serif;background:rgba(100,40,0,.3);border:1px solid rgba(180,80,10,.5);color:#e08020;padding:9px 0;font-size:8px;letter-spacing:5px;cursor:pointer;width:100%;margin-top:4px;transition:all .18s;display:block;}
+.pint-send-btn:hover{background:rgba(160,60,0,.4);border-color:rgba(230,110,10,.7);}
+.pint-items{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+.pint-item{background:rgba(8,3,1,.85);border:1px solid rgba(90,45,5,.2);padding:8px 10px;cursor:pointer;transition:all .18s;text-align:center;}
+.pint-item:hover:not(.pi-empty){border-color:rgba(180,90,10,.5);background:rgba(16,6,1,.95);}
+.pint-item.pi-empty{opacity:.3;cursor:not-allowed;}
+.pi-icon{font-size:18px;margin-bottom:3px;}
+.pi-name{font-family:'Rye',serif;color:#c07820;font-size:7px;letter-spacing:2px;}
+.pi-qty{font-size:5px;color:#5a3010;letter-spacing:1px;margin-top:2px;}
+.gd-info{font-size:7px;color:#7a4010;letter-spacing:2px;line-height:1.8;padding:8px 0 6px;text-align:center;}
+.gd-wager-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.gd-wager-row label{font-size:6px;color:#7a4010;letter-spacing:2px;white-space:nowrap;}
+#pint-duel-wager-inp{flex:1;background:rgba(10,4,1,.9);border:none;border-bottom:1px solid rgba(160,80,10,.4);color:#e0a030;font-family:'Rye',serif;font-size:14px;padding:5px 4px;outline:none;text-align:center;}
+/* hold-E bar */
+#pint-hold{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);width:130px;display:none;flex-direction:column;align-items:center;gap:3px;z-index:50;pointer-events:none;}
+#pint-hold-label{font-size:6px;color:#c07820;letter-spacing:4px;text-align:center;}
+#pint-hold-track{width:100%;height:4px;background:rgba(20,8,1,.8);border:1px solid rgba(120,60,5,.3);}
+#pint-hold-fill{height:100%;width:0%;background:linear-gradient(90deg,#c05010,#e09030);}
+/* incoming popup */
+#pint-req{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:rgba(5,2,0,.97);border:1px solid rgba(180,90,10,.5);padding:16px 24px;text-align:center;z-index:700;display:none;min-width:260px;box-shadow:0 0 30px rgba(180,80,0,.3);}
+#pint-req.open{display:block;}
+.pr-title{font-family:'Rye',serif;color:#e09030;font-size:10px;letter-spacing:4px;margin-bottom:4px;}
+.pr-from{font-size:7px;color:#7a4010;letter-spacing:3px;margin-bottom:12px;}
+.pr-btns{display:flex;gap:8px;justify-content:center;margin-top:10px;}
+.pr-btn{font-family:'Rye',serif;padding:7px 18px;font-size:7px;letter-spacing:4px;cursor:pointer;border:1px solid;transition:all .18s;}
+.pr-btn.ok{background:rgba(120,40,0,.3);border-color:rgba(200,80,10,.6);color:#e07020;}
+.pr-btn.ok:hover{background:rgba(170,50,0,.4);}
+.pr-btn.no{background:rgba(8,4,1,.4);border-color:rgba(70,35,5,.4);color:#5a3010;}
+.pr-btn.no:hover{border-color:rgba(120,60,10,.5);color:#907040;}
+/* DUEL ARENA OVERLAY */
+#duel-arena{position:fixed;inset:0;z-index:900;display:none;background:#000;}
+#duel-arena.open{display:block;}
+#duel-canvas{position:absolute;inset:0;width:100%;height:100%;}
+#duel-ui{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+#duel-vs-banner{font-family:'Rye',serif;font-size:13px;color:#c07020;letter-spacing:6px;margin-bottom:6px;opacity:0;transition:opacity .5s;}
+#duel-vs-banner.show{opacity:1;}
+#duel-cd{font-family:'Rye',serif;font-size:100px;color:#ff3000;text-shadow:0 0 60px rgba(255,40,0,.8);line-height:1;display:none;pointer-events:none;}
+#duel-go{font-family:'Rye',serif;font-size:80px;color:#ffcc00;text-shadow:0 0 50px rgba(255,200,0,.9);display:none;letter-spacing:10px;pointer-events:none;}
+#duel-click-hint{font-size:10px;color:#c07020;letter-spacing:6px;margin-top:20px;display:none;animation:blinkHint .6s infinite alternate;}
+@keyframes blinkHint{from{opacity:.4}to{opacity:1}}
+#duel-result-banner{font-family:'Rye',serif;font-size:48px;letter-spacing:8px;display:none;text-align:center;}
+#duel-result-sub{font-size:10px;letter-spacing:5px;margin-top:10px;display:none;}
+#duel-fade{position:fixed;inset:0;background:#000;z-index:890;pointer-events:none;opacity:0;transition:opacity .6s;}
+
 </style>
 </head>
 <body>
@@ -460,6 +532,87 @@ canvas#c{cursor:none;display:block;}
   <div id="horse-icon-hud">🐴</div>
   <div id="horse-name-hud">WALKING</div>
 </div>
+
+<!-- PLAYER INTERACTION -->
+<div id="pint">
+  <div id="pintb">
+    <div class="pint-head">
+      <h2 id="pint-title">PLAYER</h2>
+      <p>CHOOSE AN ACTION</p>
+    </div>
+    <div class="pint-opts" id="pint-main">
+      <div class="pint-opt" id="pint-opt-duel">
+        <div class="poi">⚔</div>
+        <div class="pot"><h3>DUEL</h3><p>1v1 showdown in the desert — bet money, first click wins</p></div>
+      </div>
+      <div class="pint-opt" id="pint-opt-money">
+        <div class="poi">💰</div>
+        <div class="pot"><h3>GIVE MONEY</h3><p>Transfer cash from your wallet</p></div>
+      </div>
+      <div class="pint-opt" id="pint-opt-item">
+        <div class="poi">🎒</div>
+        <div class="pot"><h3>GIVE ITEM</h3><p>Hand over a gun, medkit or ammo</p></div>
+      </div>
+    </div>
+    <!-- give money -->
+    <div class="psub" id="pint-sub-money">
+      <button class="psub-back" onclick="pintBack()">← BACK</button>
+      <input id="pint-money-inp" type="number" min="1" placeholder="AMOUNT" autocomplete="off">
+      <div class="pint-money-presets">
+        <div class="pint-mp" onclick="pintMoneyPreset(100)">$100</div>
+        <div class="pint-mp" onclick="pintMoneyPreset(500)">$500</div>
+        <div class="pint-mp" onclick="pintMoneyPreset(1000)">$1K</div>
+        <div class="pint-mp" onclick="pintMoneyPreset(5000)">$5K</div>
+      </div>
+      <div style="font-size:6px;color:#5a3010;letter-spacing:2px;text-align:center;margin-bottom:8px;">WALLET: $<span id="pint-wallet">0</span></div>
+      <button class="pint-send-btn" onclick="pintSendMoney()">SEND MONEY</button>
+    </div>
+    <!-- give item -->
+    <div class="psub" id="pint-sub-item">
+      <button class="psub-back" onclick="pintBack()">← BACK</button>
+      <div class="pint-items" id="pint-item-grid"></div>
+    </div>
+    <!-- duel -->
+    <div class="psub" id="pint-sub-duel">
+      <button class="psub-back" onclick="pintBack()">← BACK</button>
+      <div class="gd-info">YOU AND YOUR OPPONENT EACH BET MONEY<br>TRANSPORTED TO A DESERT ARENA<br>FIRST TO CLICK WHEN "GO" APPEARS WINS</div>
+      <div class="gd-wager-row">
+        <label>BET $</label>
+        <input id="pint-duel-wager-inp" type="number" min="50" placeholder="500" value="500">
+      </div>
+      <button class="pint-send-btn" onclick="pintSendDuel()">⚔ CHALLENGE TO DUEL</button>
+    </div>
+    <button class="pint-close" onclick="closePint()">RIDE ON</button>
+  </div>
+</div>
+<!-- hold-E bar -->
+<div id="pint-hold">
+  <div id="pint-hold-label">HOLD E</div>
+  <div id="pint-hold-track"><div id="pint-hold-fill"></div></div>
+</div>
+<!-- incoming request popup -->
+<div id="pint-req">
+  <div class="pr-title" id="pr-title">REQUEST</div>
+  <div class="pr-from" id="pr-from"></div>
+  <div id="pr-body"></div>
+  <div class="pr-btns">
+    <button class="pr-btn ok" onclick="pintReqAccept()">ACCEPT</button>
+    <button class="pr-btn no" onclick="pintReqDecline()">DECLINE</button>
+  </div>
+</div>
+<!-- DUEL ARENA -->
+<div id="duel-arena">
+  <canvas id="duel-canvas"></canvas>
+  <div id="duel-ui">
+    <div id="duel-vs-banner"></div>
+    <div id="duel-cd"></div>
+    <div id="duel-go">DRAW!</div>
+    <div id="duel-click-hint">CLICK NOW!</div>
+    <div id="duel-result-banner"></div>
+    <div id="duel-result-sub"></div>
+  </div>
+</div>
+<div id="duel-fade"></div>
 
 <!-- WEAPON WHEEL -->
 <div id="ww">
@@ -2404,6 +2557,7 @@ function update(dt){
   // stale remote cleanup
   const now=Date.now();Object.keys(REMOTES).forEach(k=>{if(now-REMOTES[k].lastSeen>8000)delete REMOTES[k];});
   uiHp();checkLoc();
+  tickHoldE(dt);
 }
 
 // ── RENDER ─────────────────────────────────────────
@@ -2922,6 +3076,25 @@ function _handleEvent(ev){
       delete REMOTES[ev.from];
       mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');
       break;
+    case 'pint_money':
+      if(ev.to===mpPid)_pintShowReq('money',ev.from,ev.name,{amt:ev.amt});break;
+    case 'pint_item':
+      if(ev.to===mpPid)_pintShowReq('item',ev.from,ev.name,{itemType:ev.itemType,gunId:ev.gunId,gunName:ev.gunName,qty:ev.qty});break;
+    case 'pint_ack':
+      if(ev.to===mpPid)sysChat(ev.name+' ACCEPTED YOUR GIFT');break;
+    case 'pint_duel_req':
+      if(ev.to===mpPid)_pintShowReq('duel',ev.from,ev.name,{wager:ev.wager});break;
+    case 'pint_duel_accept':
+      if(ev.to===mpPid){showFB('⚔ DUEL ACCEPTED!','#e08020');_startDuelArena(true);}break;
+    case 'pint_duel_decline':
+      if(ev.to===mpPid)showFB('⚔ DUEL DECLINED','#604010');break;
+    case 'pint_duel_click':
+      if(duelState.active&&ev.to===mpPid){
+        duelState.opClickTime=ev.ms;
+        if(duelState.myClicked){const myMs=Date.now()-duelState.clickTime;_duelResolve(myMs,ev.ms);}
+        else{setTimeout(()=>{if(duelState.phase==='go'&&!duelState.myClicked)_duelEnd(false,'DEFEATED');},400);}
+      }
+      break;
   }
 }
 
@@ -2972,6 +3145,455 @@ function stopMP(){
 }
 
 function bcast(){} // no-op stub (was used by old PeerJS code)
+
+// ══════════════════════════════════════════════════
+//  PLAYER INTERACTION  (hold E near player)
+//  • Give money  • Give item  • Duel (desert arena)
+// ══════════════════════════════════════════════════
+let pintOpen=false, pintTarget=null;
+let holdEProgress=0;
+const HOLD_E_SEC=0.75;
+
+function _nearestPlayer(range){
+  let best=null, bestD=range;
+  Object.entries(REMOTES).forEach(([pid,r])=>{
+    if(!r||!r.alive)return;
+    const d=Math.hypot((r.x||0)-P.x,(r.y||0)-P.y);
+    if(d<bestD){bestD=d;best={pid,name:r.name||'OUTLAW',r};}
+  });
+  return best;
+}
+
+// Called every frame from update()
+function tickHoldE(dt){
+  if(!gameOn||pintOpen||shopOpen||gstOpen||casinoOpen||adminOpen||ncodeOpen||clothOpen||stableOpen)return;
+  if(!mpRoom){holdEProgress=0;document.getElementById('pint-hold').style.display='none';return;}
+  const near=_nearestPlayer(220);
+  const holdBar=document.getElementById('pint-hold');
+  if(near&&K['KeyE']){
+    holdEProgress=Math.min(1,holdEProgress+dt/HOLD_E_SEC);
+    holdBar.style.display='flex';
+    document.getElementById('pint-hold-fill').style.width=(holdEProgress*100)+'%';
+    document.getElementById('pint-hold-label').textContent='HOLD E  '+near.name;
+    if(holdEProgress>=1){holdEProgress=0;holdBar.style.display='none';openPint(near);}
+  } else if(near&&!K['KeyE']){
+    holdEProgress=0;
+    document.getElementById('pint-hold-fill').style.width='0%';
+    holdBar.style.display='flex';
+    document.getElementById('pint-hold-label').textContent='HOLD E  '+near.name;
+  } else {
+    holdEProgress=0;
+    holdBar.style.display='none';
+  }
+}
+
+function openPint(target){
+  if(pintOpen||duelArenaOpen)return;
+  pintTarget=target; pintOpen=true;
+  document.getElementById('pint-title').textContent=target.name;
+  document.getElementById('pint-main').style.display='block';
+  ['pint-sub-money','pint-sub-item','pint-sub-duel'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  document.getElementById('pint').classList.add('open');
+}
+function closePint(){
+  pintOpen=false; pintTarget=null;
+  document.getElementById('pint').classList.remove('open');
+}
+function pintBack(){
+  document.getElementById('pint-main').style.display='block';
+  ['pint-sub-money','pint-sub-item','pint-sub-duel'].forEach(id=>document.getElementById(id).classList.remove('open'));
+}
+
+// Wire option clicks
+document.getElementById('pint-opt-duel').onclick=()=>{
+  document.getElementById('pint-main').style.display='none';
+  const guess=Math.max(50,Math.floor(P.money*0.1));
+  document.getElementById('pint-duel-wager-inp').value=guess;
+  document.getElementById('pint-sub-duel').classList.add('open');
+};
+document.getElementById('pint-opt-money').onclick=()=>{
+  document.getElementById('pint-main').style.display='none';
+  document.getElementById('pint-wallet').textContent=P.money.toLocaleString();
+  document.getElementById('pint-money-inp').value='';
+  document.getElementById('pint-sub-money').classList.add('open');
+};
+document.getElementById('pint-opt-item').onclick=()=>{
+  document.getElementById('pint-main').style.display='none';
+  _buildItemGrid();
+  document.getElementById('pint-sub-item').classList.add('open');
+};
+
+function pintMoneyPreset(a){document.getElementById('pint-money-inp').value=a;}
+
+// ── Give Money ────────────────────────────────────
+function pintSendMoney(){
+  if(!pintTarget)return;
+  const amt=parseInt(document.getElementById('pint-money-inp').value)||0;
+  if(amt<=0){showFB('ENTER AN AMOUNT','#c04010');return;}
+  if(amt>P.money){showFB('NOT ENOUGH MONEY','#c04010');return;}
+  P.money-=amt;
+  document.getElementById('hmv').textContent='$'+P.money.toLocaleString();
+  _mpSendEvent({t:'pint_money',to:pintTarget.pid,name:P.name,amt});
+  showFB('💰 SENT $'+amt.toLocaleString()+' TO '+pintTarget.name,'#d4a030');
+  sysChat('💰 '+P.name+' GAVE $'+amt.toLocaleString()+' TO '+pintTarget.name);
+  closePint();
+}
+
+// ── Give Item ─────────────────────────────────────
+function _buildItemGrid(){
+  const grid=document.getElementById('pint-item-grid');grid.innerHTML='';
+  const items=[];
+  ALLG.filter(g=>g.owned&&g.id!==P.gunId&&!g.isAdmin).forEach(g=>{
+    items.push({icon:'🔫',name:g.nm,qty:'GUN',fn:()=>{
+      g.owned=false;
+      _mpSendEvent({t:'pint_item',to:pintTarget.pid,name:P.name,itemType:'gun',gunId:g.id,gunName:g.nm});
+      showFB('🔫 GAVE '+g.nm,'#c0a020');sysChat('🔫 '+P.name+' GAVE '+g.nm+' TO '+pintTarget.name);closePint();
+    }});
+  });
+  if(P.medkits>0)items.push({icon:'🏥',name:'MEDKIT',qty:'x'+P.medkits,fn:()=>{
+    P.medkits--;uiKits();
+    _mpSendEvent({t:'pint_item',to:pintTarget.pid,name:P.name,itemType:'medkit',qty:1});
+    showFB('✚ GAVE MEDKIT','#44aa44');sysChat('✚ '+P.name+' GAVE MEDKIT TO '+pintTarget.name);closePint();
+  }});
+  if(P.res>10)items.push({icon:'🔫',name:'AMMO PACK',qty:P.res+' RDS',fn:()=>{
+    const a=P.res;P.res=0;uiAmmo();
+    _mpSendEvent({t:'pint_item',to:pintTarget.pid,name:P.name,itemType:'ammo',qty:a});
+    showFB('🔫 GAVE AMMO','#c8a018');sysChat('🔫 '+P.name+' GAVE AMMO TO '+pintTarget.name);closePint();
+  }});
+  if(items.length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;font-size:7px;color:#5a3010;letter-spacing:2px;padding:16px;">NOTHING TO GIVE</div>';return;
+  }
+  items.forEach(it=>{
+    const d=document.createElement('div');d.className='pint-item';
+    d.innerHTML=`<div class="pi-icon">${it.icon}</div><div class="pi-name">${it.name}</div><div class="pi-qty">${it.qty}</div>`;
+    d.addEventListener('click',it.fn);grid.appendChild(d);
+  });
+}
+
+// ── Duel Challenge ────────────────────────────────
+let duelArenaOpen=false;
+let duelState={active:false,opponentId:null,opponentName:'',wager:0,myWin:false,
+  phase:'idle',clickTime:null,myClicked:false,opClickTime:null};
+
+function pintSendDuel(){
+  if(!pintTarget)return;
+  const wager=parseInt(document.getElementById('pint-duel-wager-inp').value)||500;
+  if(wager>P.money){showFB('NOT ENOUGH MONEY','#c04010');return;}
+  if(wager<50){showFB('MIN BET IS $50','#c04010');return;}
+  duelState.opponentId=pintTarget.pid;
+  duelState.opponentName=pintTarget.name;
+  duelState.wager=wager;
+  _mpSendEvent({t:'pint_duel_req',to:pintTarget.pid,name:P.name,wager});
+  showFB('⚔ DUEL CHALLENGE SENT — BET $'+wager,'#e08020');
+  closePint();
+}
+
+// ── Incoming request routing ──────────────────────
+function _pintShowReq(type,fromPid,fromName,data){
+  const req=document.getElementById('pint-req');
+  req._type=type;req._from=fromPid;req._fromName=fromName;req._data=data;
+  document.getElementById('pr-from').textContent='FROM: '+fromName;
+  if(type==='money'){
+    document.getElementById('pr-title').textContent='💰 MONEY INCOMING';
+    document.getElementById('pr-body').innerHTML=
+      '<div style="font-size:14px;color:#d4a030;font-family:Rye,serif;text-align:center;margin:6px 0">+$'+(data.amt||0).toLocaleString()+'</div>';
+  } else if(type==='item'){
+    const label=data.itemType==='gun'?(data.gunName||'GUN'):data.itemType==='medkit'?'MEDKIT':'AMMO';
+    document.getElementById('pr-title').textContent='🎒 ITEM GIFT';
+    document.getElementById('pr-body').innerHTML=
+      '<div style="font-size:10px;color:#c0a020;font-family:Rye,serif;text-align:center;margin:6px 0">'+label+'</div>';
+  } else if(type==='duel'){
+    document.getElementById('pr-title').textContent='⚔ DUEL CHALLENGE';
+    document.getElementById('pr-body').innerHTML=
+      '<div style="font-size:8px;color:#e07020;font-family:Rye,serif;text-align:center;margin:6px 0">BET: $'+(data.wager||0).toLocaleString()+'</div>';
+  }
+  req.classList.add('open');
+  clearTimeout(req._t);req._t=setTimeout(()=>req.classList.remove('open'),14000);
+}
+
+function pintReqAccept(){
+  const req=document.getElementById('pint-req');
+  const {_type:t,_from:from,_fromName:fn,_data:d}=req;
+  req.classList.remove('open');
+  if(t==='money'){
+    addMoney(d.amt||0);
+    showFB('💰 RECEIVED $'+(d.amt||0).toLocaleString()+' FROM '+fn,'#d4a030');
+    _mpSendEvent({t:'pint_ack',to:from,ackType:'money',name:P.name});
+  } else if(t==='item'){
+    if(d.itemType==='gun'){const g=ALLG.find(g=>g.id===d.gunId);if(g){g.owned=true;showFB('🔫 RECEIVED '+g.nm,'#c0a020');}}
+    else if(d.itemType==='medkit'){P.medkits++;uiKits();showFB('✚ RECEIVED MEDKIT','#44aa44');}
+    else if(d.itemType==='ammo'){P.res+=d.qty||50;uiAmmo();showFB('🔫 RECEIVED AMMO','#c8a018');}
+    _mpSendEvent({t:'pint_ack',to:from,ackType:'item',name:P.name});
+  } else if(t==='duel'){
+    if((d.wager||0)>P.money){showFB('CANNOT AFFORD THIS DUEL','#c04010');
+      _mpSendEvent({t:'pint_duel_decline',to:from,name:P.name});return;}
+    duelState.opponentId=from;duelState.opponentName=fn;duelState.wager=d.wager||500;
+    _mpSendEvent({t:'pint_duel_accept',to:from,name:P.name});
+    _startDuelArena(false);
+  }
+}
+function pintReqDecline(){
+  const req=document.getElementById('pint-req');
+  const {_type:t,_from:from,_fromName:fn}=req;
+  req.classList.remove('open');
+  if(t==='duel')_mpSendEvent({t:'pint_duel_decline',to:from,name:P.name});
+}
+
+// ════════════════════════════════════════════════════
+//  DUEL ARENA
+// ════════════════════════════════════════════════════
+let _duelRAF=null,_duelT=0;
+const DC=document.getElementById('duel-canvas');
+const DX=DC.getContext('2d');
+
+function _resizeDuelCanvas(){DC.width=innerWidth;DC.height=innerHeight;}
+addEventListener('resize',_resizeDuelCanvas);_resizeDuelCanvas();
+
+// Procedural desert scene elements
+let _duelScene={cacti:[],tumbles:[],stars:[]};
+
+function _buildDuelScene(){
+  const W=DC.width,H=DC.height;
+  _duelScene.cacti=[];
+  for(let i=0;i<14;i++)_duelScene.cacti.push({
+    x:Math.random()*W,y:H*.55+Math.random()*H*.1,
+    h:40+Math.random()*60,w:10+Math.random()*8,
+    arms:Math.random()>.4
+  });
+  _duelScene.tumbles=[];
+  for(let i=0;i<6;i++)_duelScene.tumbles.push({
+    x:Math.random()*W,y:H*.62+Math.random()*H*.18,
+    r:8+Math.random()*14,vx:(Math.random()-.5)*40,
+    rot:Math.random()*Math.PI*2,rotV:(Math.random()-.5)*2
+  });
+  _duelScene.stars=[];
+  for(let i=0;i<80;i++)_duelScene.stars.push({x:Math.random()*W,y:Math.random()*H*.38,r:Math.random()*1.4});
+}
+
+function _drawDuelArena(t){
+  const W=DC.width,H=DC.height;
+  DX.clearRect(0,0,W,H);
+  // Sky gradient — deep dusk
+  const sky=DX.createLinearGradient(0,0,0,H*.6);
+  sky.addColorStop(0,'#0a0408');sky.addColorStop(.5,'#1a0510');sky.addColorStop(1,'#3a0c02');
+  DX.fillStyle=sky;DX.fillRect(0,0,W,H*.62);
+  // Stars
+  _duelScene.stars.forEach(s=>{
+    DX.fillStyle='rgba(255,220,180,'+(0.4+Math.sin(t*1.3+s.x)*0.3)+')';
+    DX.beginPath();DX.arc(s.x,s.y,s.r,0,Math.PI*2);DX.fill();
+  });
+  // Moon
+  const mx=W*.78,my=H*.12;
+  DX.fillStyle='rgba(240,220,160,.9)';DX.beginPath();DX.arc(mx,my,22,0,Math.PI*2);DX.fill();
+  DX.fillStyle='rgba(0,0,0,.55)';DX.beginPath();DX.arc(mx+6,my-4,18,0,Math.PI*2);DX.fill();
+  // Ground
+  const gnd=DX.createLinearGradient(0,H*.58,0,H);
+  gnd.addColorStop(0,'#2a1204');gnd.addColorStop(.3,'#1a0a02');gnd.addColorStop(1,'#0a0500');
+  DX.fillStyle=gnd;DX.fillRect(0,H*.58,W,H);
+  // Ground texture lines
+  DX.strokeStyle='rgba(60,20,5,.3)';DX.lineWidth=1;
+  for(let i=0;i<6;i++){
+    const py=H*.63+i*H*.06;DX.beginPath();DX.moveTo(0,py);DX.lineTo(W,py);DX.stroke();
+  }
+  // Horizon glow
+  const hg=DX.createLinearGradient(0,H*.55,0,H*.72);
+  hg.addColorStop(0,'rgba(180,50,0,.25)');hg.addColorStop(1,'rgba(0,0,0,0)');
+  DX.fillStyle=hg;DX.fillRect(0,H*.55,W,H*.18);
+  // Draw cacti
+  _duelScene.cacti.forEach(c=>{
+    DX.fillStyle='#0d2008';
+    DX.fillRect(c.x-c.w/2,c.y-c.h,c.w,c.h);
+    DX.fillStyle='#0a1806';
+    DX.fillRect(c.x-c.w/2+1,c.y-c.h,2,c.h);
+    if(c.arms){
+      const ah=c.h*.4,aw=c.w*.8;
+      DX.fillRect(c.x-c.w/2-aw,c.y-c.h*.7,aw,c.w*.7);
+      DX.fillRect(c.x-c.w/2-aw,c.y-c.h*.7-ah,c.w*.7,ah);
+      DX.fillRect(c.x+c.w/2,c.y-c.h*.55,aw*.8,c.w*.7);
+      DX.fillRect(c.x+c.w/2,c.y-c.h*.55-ah*.7,c.w*.7,ah*.7);
+    }
+  });
+  // Tumbleweeds
+  _duelScene.tumbles.forEach(tw=>{
+    DX.save();DX.translate(tw.x,tw.y);DX.rotate(tw.rot);
+    DX.strokeStyle='rgba(100,55,10,.7)';DX.lineWidth=1.5;
+    for(let a=0;a<5;a++){
+      const an=a/5*Math.PI*2;
+      DX.beginPath();DX.ellipse(0,0,tw.r,tw.r*.6,an,0,Math.PI*2);DX.stroke();
+    }
+    DX.restore();
+  });
+  // Dirt particles drifting
+  const dp=Math.sin(t*.4)*.5+.5;
+  DX.fillStyle='rgba(120,50,5,'+dp*.08+')';
+  for(let i=0;i<3;i++){
+    const px=(t*30*(i+1)*17)%W,py=H*.64+i*12;
+    DX.beginPath();DX.ellipse(px,py,4+i*2,2,0,0,Math.PI*2);DX.fill();
+  }
+}
+
+function _animDuelScene(t){
+  // Move tumbleweeds
+  const W=DC.width,H=DC.height;
+  _duelScene.tumbles.forEach(tw=>{
+    tw.x+=tw.vx*0.016;tw.rot+=tw.rotV*0.016;
+    if(tw.x>W+30)tw.x=-30;if(tw.x<-30)tw.x=W+30;
+  });
+}
+
+function _startDuelArena(isChallenger){
+  duelArenaOpen=true;duelState.active=true;
+  duelState.myClicked=false;duelState.opClickTime=null;
+  duelState.phase='fade';
+  closePint();
+  // Fade to black
+  const fade=document.getElementById('duel-fade');
+  fade.style.opacity='0';fade.style.display='block';
+  fade.style.transition='opacity .5s';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{fade.style.opacity='1';}));
+  setTimeout(()=>{
+    // Show arena
+    document.getElementById('duel-arena').classList.add('open');
+    _buildDuelScene();
+    _resizeDuelCanvas();
+    // Fade back in
+    fade.style.transition='opacity .6s';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{fade.style.opacity='0';}));
+    setTimeout(()=>{fade.style.display='none';},650);
+    // Show VS banner
+    const vb=document.getElementById('duel-vs-banner');
+    vb.textContent=P.name+' VS '+duelState.opponentName;
+    setTimeout(()=>vb.classList.add('show'),100);
+    // Start countdown after 1.5s
+    duelState.phase='countdown';
+    _duelCountdown(3,isChallenger);
+    // Start render loop
+    _duelT=0;_duelRenderLoop();
+  },550);
+}
+
+let _duelLoopRunning=false;
+function _duelRenderLoop(){
+  if(!duelArenaOpen){_duelLoopRunning=false;return;}
+  _duelLoopRunning=true;
+  _duelT+=0.016;
+  _animDuelScene(_duelT);
+  _drawDuelArena(_duelT);
+  requestAnimationFrame(_duelRenderLoop);
+}
+
+function _duelCountdown(n,isChallenger){
+  const cd=document.getElementById('duel-cd');
+  cd.style.display='block';cd.textContent=n;
+  // big flash
+  cd.style.transform='scale(1.3)';cd.style.transition='transform .2s';
+  setTimeout(()=>{cd.style.transform='scale(1)';},200);
+  if(n>1){
+    setTimeout(()=>_duelCountdown(n-1,isChallenger),1000);
+  } else {
+    // Show something misleading first, then DRAW!
+    const fakes=['STEADY...','WAIT...','NOT YET...','ALMOST...'];
+    const fake=fakes[Math.floor(Math.random()*fakes.length)];
+    setTimeout(()=>{
+      cd.textContent=fake;
+      // Random delay 0.4-2s before real GO
+      const delay=400+Math.random()*1600;
+      setTimeout(()=>{
+        cd.style.display='none';
+        _duelShowGo();
+      },delay);
+    },900);
+  }
+}
+
+function _duelShowGo(){
+  duelState.phase='go';
+  duelState.clickTime=Date.now();
+  const go=document.getElementById('duel-go');
+  const hint=document.getElementById('duel-click-hint');
+  go.style.display='block';hint.style.display='block';
+  // Hook click
+  DC.style.cursor='crosshair';
+  DC.addEventListener('click',_duelOnClick,{once:true});
+  document.getElementById('duel-arena').addEventListener('click',_duelOnClick,{once:true});
+  // Broadcast go signal
+  _mpSendEvent({t:'pint_duel_go',to:duelState.opponentId,fromTime:duelState.clickTime});
+  // Timeout — if neither clicks in 5s, cancel
+  duelState._goTimeout=setTimeout(()=>{
+    if(duelState.phase==='go')_duelEnd(false,'TIMEOUT');
+  },5000);
+}
+
+function _duelOnClick(){
+  if(duelState.phase!=='go')return;
+  const myTime=Date.now()-duelState.clickTime;
+  duelState.myClicked=true;
+  _mpSendEvent({t:'pint_duel_click',to:duelState.opponentId,ms:myTime,name:P.name});
+  // Wait briefly for opponent click to arrive (300ms)
+  setTimeout(()=>{
+    if(duelState.opClickTime!==null){
+      _duelResolve(myTime,duelState.opClickTime);
+    } else {
+      // We clicked, opponent hasn't yet — we win
+      _duelResolve(myTime,9999);
+    }
+  },350);
+}
+
+function _duelResolve(myMs,opMs){
+  clearTimeout(duelState._goTimeout);
+  if(duelState.phase!=='go')return;
+  duelState.phase='result';
+  const weWon=myMs<opMs;
+  _duelEnd(weWon,weWon?'VICTORY':'DEFEATED');
+}
+
+function _duelEnd(weWon,reason){
+  if(duelState.phase==='result'||duelState.phase==='idle')return;
+  duelState.phase='result';
+  clearTimeout(duelState._goTimeout);
+  document.getElementById('duel-go').style.display='none';
+  document.getElementById('duel-click-hint').style.display='none';
+  document.getElementById('duel-cd').style.display='none';
+  const rb=document.getElementById('duel-result-banner');
+  const rs=document.getElementById('duel-result-sub');
+  if(weWon){
+    rb.style.color='#ffd840';rb.textContent='⚔ '+reason;
+    rs.textContent='+$'+duelState.wager.toLocaleString()+' TAKEN';rs.style.color='#c0a020';
+    addMoney(duelState.wager);
+    cam.shake=20;showFB('⚔ DUEL WON! +$'+duelState.wager,'#ffd840');
+  } else {
+    rb.style.color='#cc2000';rb.textContent='☠ '+reason;
+    rs.textContent='-$'+duelState.wager.toLocaleString()+' LOST';rs.style.color='#803010';
+    P.money=Math.max(0,P.money-duelState.wager);
+    document.getElementById('hmv').textContent='$'+P.money.toLocaleString();
+    showFB('☠ DUEL LOST -$'+duelState.wager,'#cc2000');
+  }
+  rb.style.display='block';rs.style.display='block';
+  sysChat((weWon?'⚔ '+P.name+' BEAT ':'☠ '+P.name+' LOST TO ')+duelState.opponentName+' IN A DUEL!');
+  // Return to world after 3s
+  setTimeout(_exitDuelArena,3000);
+}
+
+function _exitDuelArena(){
+  const fade=document.getElementById('duel-fade');
+  fade.style.display='block';fade.style.opacity='0';
+  fade.style.transition='opacity .5s';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{fade.style.opacity='1';}));
+  setTimeout(()=>{
+    document.getElementById('duel-arena').classList.remove('open');
+    document.getElementById('duel-result-banner').style.display='none';
+    document.getElementById('duel-result-sub').style.display='none';
+    document.getElementById('duel-vs-banner').classList.remove('show');
+    duelArenaOpen=false;duelState.active=false;duelState.phase='idle';
+    fade.style.transition='opacity .5s';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{fade.style.opacity='0';}));
+    setTimeout(()=>{fade.style.display='none';},520);
+  },520);
+}
+
+// ── Hook tickHoldE into update loop ──────────────
+// (tickHoldE is called from update() directly)
 
 // ── CHAT UI ───────────────────────────────────────
 function addChat(name,msg,sys){
