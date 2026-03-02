@@ -393,15 +393,15 @@ canvas#c{cursor:none;display:block;}
 .pr-btn.no{background:rgba(8,4,1,.4);border-color:rgba(70,35,5,.4);color:#5a3010;}
 .pr-btn.no:hover{border-color:rgba(120,60,10,.5);color:#907040;}
 /* DUEL ARENA OVERLAY */
-#duel-arena{position:fixed;inset:0;z-index:900;display:none;background:#000;}
-#duel-arena.open{display:block;}
+#duel-arena{position:fixed;inset:0;z-index:900;display:none;background:#000;pointer-events:none;}
+#duel-arena.open{display:block;pointer-events:none;}
 #duel-canvas{position:absolute;inset:0;width:100%;height:100%;}
 #duel-ui{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
 #duel-vs-banner{font-family:'Rye',serif;font-size:13px;color:#c07020;letter-spacing:6px;margin-bottom:6px;opacity:0;transition:opacity .5s;}
 #duel-vs-banner.show{opacity:1;}
 #duel-cd{font-family:'Rye',serif;font-size:100px;color:#ff3000;text-shadow:0 0 60px rgba(255,40,0,.8);line-height:1;display:none;pointer-events:none;}
 #duel-go{font-family:'Rye',serif;font-size:80px;color:#ffcc00;text-shadow:0 0 50px rgba(255,200,0,.9);display:none;letter-spacing:10px;pointer-events:none;}
-#duel-click-hint{font-size:10px;color:#c07020;letter-spacing:6px;margin-top:20px;display:none;animation:blinkHint .6s infinite alternate;}
+#duel-click-hint{font-size:10px;color:#c07020;letter-spacing:6px;margin-top:20px;display:none;animation:blinkHint .6s infinite alternate;pointer-events:none;}
 @keyframes blinkHint{from{opacity:.4}to{opacity:1}}
 #duel-result-banner{font-family:'Rye',serif;font-size:48px;letter-spacing:8px;display:none;text-align:center;}
 #duel-result-sub{font-size:10px;letter-spacing:5px;margin-top:10px;display:none;}
@@ -3077,8 +3077,17 @@ function _handleEvent(ev){
     case 'pint_duel_click':
       if(duelState.active&&ev.to===mpPid){
         duelState.opClickTime=ev.ms;
-        if(duelState.myClicked){const myMs=Date.now()-duelState.clickTime;_duelResolve(myMs,ev.ms);}
-        else{setTimeout(()=>{if(duelState.phase==='go'&&!duelState.myClicked)_duelEnd(false,'DEFEATED');},400);}
+        if(duelState.myClicked){
+          // Both clicked — resolve with real times
+          _duelResolve(duelState.myMs,ev.ms);
+        } else {
+          // Opponent clicked first — they win after short delay (give us a chance)
+          setTimeout(()=>{
+            if(duelState.phase==='go'&&!duelState.myClicked){
+              _duelEnd(false,'TOO SLOW');
+            }
+          },300);
+        }
       }
       break;
   }
@@ -3505,49 +3514,81 @@ function _duelCountdown(n,isChallenger){
 function _duelShowGo(){
   duelState.phase='go';
   duelState.clickTime=Date.now();
+  duelState.myClicked=false;
+  duelState.opClickTime=null;
   const go=document.getElementById('duel-go');
   const hint=document.getElementById('duel-click-hint');
   go.style.display='block';hint.style.display='block';
-  // Hook click
-  DC.style.cursor='crosshair';
-  DC.addEventListener('click',_duelOnClick,{once:true});
-  document.getElementById('duel-arena').addEventListener('click',_duelOnClick,{once:true});
-  // Broadcast go signal
-  _mpSendEvent({t:'pint_duel_go',to:duelState.opponentId,fromTime:duelState.clickTime});
-  // Timeout — if neither clicks in 5s, cancel
+
+  // Single listener on the arena div — covers the whole screen
+  // Remove any old listeners first to avoid double-fire
+  const arena=document.getElementById('duel-arena');
+  arena.removeEventListener('click',_duelOnClick);
+  arena.addEventListener('click',_duelOnClick);
+  // Also make arena pointer-events active and cursor pointer
+  arena.style.cursor='crosshair';
+  arena.style.pointerEvents='all';
+
+  // Timeout — if nobody clicks in 6s, caller wins / draw
   duelState._goTimeout=setTimeout(()=>{
-    if(duelState.phase==='go')_duelEnd(false,'TIMEOUT');
-  },5000);
+    if(duelState.phase==='go'){
+      arena.removeEventListener('click',_duelOnClick);
+      // If solo testing just resolve as win
+      if(!mpRoom||!duelState.opponentId){_duelEnd(true,'VICTORY');return;}
+      _duelEnd(false,'TOO SLOW');
+    }
+  },6000);
 }
 
 function _duelOnClick(){
   if(duelState.phase!=='go')return;
-  const myTime=Date.now()-duelState.clickTime;
+  // Prevent double-fire
+  const arena=document.getElementById('duel-arena');
+  arena.removeEventListener('click',_duelOnClick);
+
+  const myMs=Date.now()-duelState.clickTime;
   duelState.myClicked=true;
-  _mpSendEvent({t:'pint_duel_click',to:duelState.opponentId,ms:myTime,name:P.name});
-  // Wait briefly for opponent click to arrive (300ms)
-  setTimeout(()=>{
-    if(duelState.opClickTime!==null){
-      _duelResolve(myTime,duelState.opClickTime);
-    } else {
-      // We clicked, opponent hasn't yet — we win
-      _duelResolve(myTime,9999);
-    }
-  },350);
+  duelState.myMs=myMs;
+
+  // Solo / no opponent — instant win
+  if(!mpRoom||!duelState.opponentId){
+    clearTimeout(duelState._goTimeout);
+    _duelEnd(true,'VICTORY');
+    return;
+  }
+
+  // Send our click time to opponent
+  _mpSendEvent({t:'pint_duel_click',to:duelState.opponentId,ms:myMs,name:P.name});
+
+  // Wait up to 500ms for opponent's click to arrive via MQTT
+  duelState._resolveTimeout=setTimeout(()=>{
+    if(duelState.phase!=='go')return;
+    // Opponent hasn't clicked yet — we win by default
+    _duelResolve(myMs,9999);
+  },500);
 }
 
 function _duelResolve(myMs,opMs){
-  clearTimeout(duelState._goTimeout);
   if(duelState.phase!=='go')return;
+  clearTimeout(duelState._goTimeout);
+  clearTimeout(duelState._resolveTimeout);
   duelState.phase='result';
   const weWon=myMs<opMs;
   _duelEnd(weWon,weWon?'VICTORY':'DEFEATED');
 }
 
 function _duelEnd(weWon,reason){
+  // Guard against double calls
   if(duelState.phase==='result'||duelState.phase==='idle')return;
   duelState.phase='result';
   clearTimeout(duelState._goTimeout);
+  clearTimeout(duelState._resolveTimeout);
+
+  // Clean up click listener
+  const arena=document.getElementById('duel-arena');
+  arena.removeEventListener('click',_duelOnClick);
+  arena.style.cursor='default';
+
   document.getElementById('duel-go').style.display='none';
   document.getElementById('duel-click-hint').style.display='none';
   document.getElementById('duel-cd').style.display='none';
@@ -3566,18 +3607,23 @@ function _duelEnd(weWon,reason){
     showFB('☠ DUEL LOST -$'+duelState.wager,'#cc2000');
   }
   rb.style.display='block';rs.style.display='block';
-  sysChat((weWon?'⚔ '+P.name+' BEAT ':'☠ '+P.name+' LOST TO ')+duelState.opponentName+' IN A DUEL!');
-  // Return to world after 3s
+  if(duelState.opponentName)
+    sysChat((weWon?'⚔ '+P.name+' BEAT ':'☠ '+P.name+' LOST TO ')+duelState.opponentName+' IN A DUEL!');
   setTimeout(_exitDuelArena,3000);
 }
 
 function _exitDuelArena(){
   const fade=document.getElementById('duel-fade');
+  const arena=document.getElementById('duel-arena');
+  // Reset pointer-events immediately so game is not blocked
+  arena.style.pointerEvents='none';
+  arena.style.cursor='default';
+  arena.removeEventListener('click',_duelOnClick);
   fade.style.display='block';fade.style.opacity='0';
   fade.style.transition='opacity .5s';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{fade.style.opacity='1';}));
   setTimeout(()=>{
-    document.getElementById('duel-arena').classList.remove('open');
+    arena.classList.remove('open');
     document.getElementById('duel-result-banner').style.display='none';
     document.getElementById('duel-result-sub').style.display='none';
     document.getElementById('duel-vs-banner').classList.remove('show');
