@@ -452,6 +452,13 @@ canvas#c{cursor:none;display:block;}
 #taser-overlay{position:fixed;inset:0;background:rgba(40,80,255,.25);z-index:800;display:none;pointer-events:none;animation:taserFlash .12s infinite alternate;}
 @keyframes taserFlash{from{opacity:0}to{opacity:1}}
 
+
+/* ═══ FORT INVASION ═══ */
+#fort-alarm{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#cc0000,#ff4400,#cc0000);display:none;z-index:50;animation:fortPulse .4s infinite alternate;}
+@keyframes fortPulse{from{opacity:.4}to{opacity:1}}
+#fort-msg{position:fixed;top:14px;left:50%;transform:translateX(-50%);font-family:'Rye',serif;font-size:11px;color:#ff3300;letter-spacing:5px;text-shadow:0 0 18px rgba(255,50,0,.8);display:none;pointer-events:none;z-index:51;}
+.fort-fire{position:fixed;pointer-events:none;z-index:48;}
+
 </style>
 </head>
 <body>
@@ -686,6 +693,9 @@ canvas#c{cursor:none;display:block;}
 </div>
 <!-- TASER OVERLAY -->
 <div id="taser-overlay"></div>
+<!-- FORT ALARM -->
+<div id="fort-alarm"></div>
+<div id="fort-msg">⚠ FORT UNDER ATTACK ⚠</div>
 <!-- WEAPON WHEEL -->
 <div id="ww">
   <canvas id="ww-canvas" width="500" height="500"></canvas>
@@ -1313,6 +1323,29 @@ const TOWNS=[
     {x:-500,y:-1760,w:105,h:60,lb:'TAILOR',c:'#6a3858',rf:'#3a1838',isCloth:true},
    ]},
 
+
+  // ═══ FORT CRANE — Military stronghold ═══
+  {name:'FORT CRANE',sub:'U.S. ARMY — KEEP OUT',x:3800,y:-1400,r:500,isFort:true,
+   streets:[
+     {ax:3500,ay:-1400,bx:4100,by:-1400,w:24},
+     {ax:3800,ay:-1700,bx:3800,by:-1100,w:20},
+     {ax:3500,ay:-1600,bx:4100,by:-1600,w:12},
+     {ax:3500,ay:-1200,bx:4100,by:-1200,w:12},
+   ],
+   lights:[
+     {x:3600,y:-1400},{x:3800,y:-1400},{x:4000,y:-1400},
+     {x:3600,y:-1600},{x:4000,y:-1600},
+     {x:3600,y:-1200},{x:4000,y:-1200},
+   ],
+   blds:[
+    {x:3800,y:-1700,w:180,h:100,lb:'FORT GATE',c:'#4a4830',rf:'#2a2818',isFortGate:true},
+    {x:3580,y:-1500,w:140,h:90,lb:'BARRACKS',c:'#3a4028',rf:'#1a2010',isFortBld:true},
+    {x:4020,y:-1500,w:140,h:90,lb:'BARRACKS',c:'#3a4028',rf:'#1a2010',isFortBld:true},
+    {x:3580,y:-1300,w:130,h:80,lb:'ARMORY',c:'#4a4430',rf:'#2a2420',isFortBld:true},
+    {x:4020,y:-1300,w:130,h:80,lb:'STOREROOM',c:'#3a4028',rf:'#1a2010',isFortBld:true},
+    {x:3800,y:-1400,w:160,h:100,lb:'COMMAND POST',c:'#5a5038',rf:'#3a3020',isFortBld:true},
+    {x:3800,y:-1100,w:140,h:80,lb:'SOUTH GATE',c:'#4a4830',rf:'#2a2818',isFortGate:true},
+   ]},
   // ═══ SILVERADO FALLS — riverside town NE ═══
   {name:'SILVERADO FALLS',sub:'WHERE THE RIVER RUNS',x:1200,y:-1800,r:340,
    streets:[
@@ -1441,6 +1474,27 @@ const GCL=['#8a1010','#1a4a1a','#1a1a6a','#6a3a1a'];
 const GHT=['#1a0404','#041a04','#04041a','#1a0e04'];
 let deadWestNPC=null;
 const npcs=[],police=[],riders=[],respawnQ=[];
+let fortSoldiers=[];
+const FORT = {
+  x:3800, y:-1400,
+  radius:520,
+  alarmRadius:420,
+  active:false,
+  alarmOn:false,
+  fires:0,
+  firesToWin:3,
+  explodeTimer:0,
+  exploded:false,
+  explodeDelay:8,
+  soldierSpawnCd:0,
+  firePoints:[
+    {x:3700,y:-1550,active:false,t:0,bld:'BARRACKS W'},
+    {x:3900,y:-1550,active:false,t:0,bld:'BARRACKS E'},
+    {x:3700,y:-1330,active:false,t:0,bld:'ARMORY'},
+    {x:3900,y:-1330,active:false,t:0,bld:'STOREROOM'},
+    {x:3800,y:-1440,active:false,t:0,bld:'COMMAND POST'},
+  ],
+};
 function bRange(){if(P.lv>=10)return[500,1000];if(P.lv>=5)return[200,600];return[1,500];}
 function mkBounty(ti){
   const[mn,mx2]=bRange(),bounty=~~(Math.random()*(mx2-mn))+mn;
@@ -2014,6 +2068,36 @@ function drawTrain(){
 }
 
 function drawBuilding(b){
+  // Fort buildings — draw with military styling + wall perimeter
+  if(b.isFortBld||b.isFortGate){
+    const[sx,sy]=ws(b.x,b.y);
+    const hw=b.w/2,hh=b.h/2;
+    if(sx+hw<0||sx-hw>W||sy+hh<0||sy-hh>H)return;
+    const L=lm();
+    const on=FORT.alarmOn;
+    // Shadow
+    X.fillStyle='rgba(0,0,0,.35)';X.fillRect(sx-hw+4,sy-hh+6,b.w,b.h);
+    // Wall fill — olive/military green
+    X.fillStyle=on?`rgb(${~~(70*L.r)},${~~(60*L.g)},${~~(30*L.b)})`:`rgb(${~~(58*L.r)},${~~(68*L.g)},${~~(36*L.b)})`;
+    X.fillRect(sx-hw,sy-hh,b.w,b.h);
+    // Roof
+    X.fillStyle=on?`rgb(${~~(50*L.r)},${~~(40*L.g)},${~~(20*L.b)})`:`rgb(${~~(40*L.r)},${~~(52*L.g)},${~~(24*L.b)})`;
+    X.fillRect(sx-hw,sy-hh,b.w,b.h*.38);
+    // Wall border — thick tactical look
+    X.strokeStyle=on?'rgba(255,80,0,.7)':'rgba(80,100,40,.8)';
+    X.lineWidth=on?2.5:1.5;
+    X.strokeRect(sx-hw,sy-hh,b.w,b.h);
+    // Battlements on gate
+    if(b.isFortGate){
+      X.fillStyle=`rgb(${~~(38*L.r)},${~~(50*L.g)},${~~(22*L.b)})`;
+      for(let i=0;i<5;i++){X.fillRect(sx-hw+i*(b.w/4.5),sy-hh-8,b.w/6,8);}
+    }
+    // Label
+    X.fillStyle='rgba(4,2,1,.72)';X.fillRect(sx-b.w*.38,sy-8,b.w*.76,13);
+    X.fillStyle=on?'#ff8040':'#aabf60';X.font='6px Georgia';X.textAlign='center';X.textBaseline='middle';
+    X.fillText(b.lb,sx,sy);
+    return;
+  }
   const L=lm(),[sx,sy]=ws(b.x,b.y),hw=b.w/2,hh=b.h/2;if(sx+hw<-10||sx-hw>W+10||sy+hh<-10||sy-hh>H+10)return;
   const sh=col=>{const r=parseInt(col.slice(1,3),16),g=parseInt(col.slice(3,5),16),bl=parseInt(col.slice(5,7),16);return`rgb(${~~(r*L.r)},${~~(g*L.g)},${~~(bl*L.b)})`;};
   X.fillStyle='rgba(0,0,0,.2)';X.fillRect(sx-hw+6,sy-hh+8,b.w,b.h);
@@ -2511,7 +2595,7 @@ function drawPlayer(){
 
 function drawBullet(b,enemy){
   const[sx,sy]=ws(b.x,b.y);X.save();
-  if(!b.sg&&b.tr.length>1){X.globalAlpha=.27;X.strokeStyle=b.isBlue?'#00cfff':b.rainbow?`hsl(${Date.now()/4%360},100%,60%)`:enemy?'#ff3c1c':'#ffdc76';X.lineWidth=b.isBlue?3:enemy?2:b.rainbow?3:2.5;X.beginPath();const[tx,ty]=ws(b.tr[0][0],b.tr[0][1]);X.moveTo(tx,ty);b.tr.slice(1).forEach(t=>{const[x2,y2]=ws(t[0],t[1]);X.lineTo(x2,y2);});X.stroke();X.globalAlpha=1;}
+  if(!b.sg&&b.tr&&b.tr.length>1){X.globalAlpha=.27;X.strokeStyle=b.isBlue?'#00cfff':b.rainbow?`hsl(${Date.now()/4%360},100%,60%)`:enemy?'#ff3c1c':'#ffdc76';X.lineWidth=b.isBlue?3:enemy?2:b.rainbow?3:2.5;X.beginPath();const[tx,ty]=ws(b.tr[0][0],b.tr[0][1]);X.moveTo(tx,ty);b.tr.slice(1).forEach(t=>{const[x2,y2]=ws(t[0],t[1]);X.lineTo(x2,y2);});X.stroke();X.globalAlpha=1;}
   const exp=b.sp==='explode';
   if(b.isBlue){
     // Blue plasma burst — cyan core, blue outer glow, aura rings
@@ -2715,7 +2799,7 @@ function update(dt){
   police.forEach(p=>{if(p.alive)aiMove(p,dt);});riders.forEach(r=>{if(r.alive){aiMove(r,dt);if(Math.random()<.28)pHoof(r.x,r.y);}});
   // player bullets
   for(let i=bullets.length-1;i>=0;i--){
-    const b=bullets[i];if(!b.sg){b.tr.push([b.x,b.y]);if(b.tr.length>6)b.tr.shift();}b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;let hit=false;
+    const b=bullets[i];if(!b)continue;if(!b.tr)b.tr=[];if(!b.sg){b.tr.push([b.x,b.y]);if(b.tr.length>6)b.tr.shift();}b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;let hit=false;
     if(b.sp==='explode'){const near=npcs.some(n=>n.alive&&Math.hypot(b.x-n.x,b.y-n.y)<92)||police.some(p=>p.alive&&Math.hypot(b.x-p.x,b.y-p.y)<92)||riders.some(r=>r.alive&&Math.hypot(b.x-r.x,b.y-r.y)<92);if(near||bWall(b.x,b.y)||b.life<=0){pExp(b.x,b.y);cam.shake=Math.max(cam.shake,14);npcs.forEach(n=>{if(!n.alive)return;if(!inWorld(n.x,n.y,1200))return;if(Math.hypot(b.x-n.x,b.y-n.y)<76){n.hp-=3;n.hf=.12;n.hostile=true;if(n.hp<=0)killNPC(n);}});police.forEach(p=>{if(!p.alive)return;if(Math.hypot(b.x-p.x,b.y-p.y)<76){p.hp-=4;p.hf=.12;if(p.hp<=0)p.alive=false;}});riders.forEach(r=>{if(!r.alive)return;if(Math.hypot(b.x-r.x,b.y-r.y)<76){r.hp-=4;r.hf=.12;if(r.hp<=0){r.alive=false;addXP(12);}}});bullets.splice(i,1);continue;}}
     for(let j=0;j<npcs.length&&!hit;j++){const n=npcs[j];if(!n.alive)continue;if(Math.hypot(b.x-n.x,b.y-n.y)<n.sz+5){n.hp-=b.dmg;n.hf=.13;pBlood(n.x,n.y,b.sg?4:8);cam.shake=Math.max(cam.shake,3);if(n.isDeadWest&&!n.hostile){n.hostile=true;showFB('💀 DEAD WEST RISES!','#cc0000');cam.shake=20;}n.hostile=true;if(n.hp<=0)killNPC(n);hit=true;}}
     for(let j=0;j<police.length&&!hit;j++){const p=police[j];if(!p.alive)continue;if(Math.hypot(b.x-p.x,b.y-p.y)<p.sz+5){p.hp-=b.dmg;p.hf=.13;pBlood(p.x,p.y,5);cam.shake=Math.max(cam.shake,3);if(p.hp<=0){p.alive=false;addXP(15);showFK(p.isSheriff?'SHERIFF DOWN!':'DEPUTY DOWN');if(questState.activeQuest!==null)questState.sessionDeputies++;}hit=true;}}
@@ -2724,7 +2808,7 @@ function update(dt){
     if(hit||b.life<=0)bullets.splice(i,1);
   }
   // enemy bullets
-  for(let i=eBullets.length-1;i>=0;i--){const b=eBullets[i];b.tr.push([b.x,b.y]);if(b.tr.length>4)b.tr.shift();b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(Math.hypot(b.x-P.x,b.y-P.y)<PRAD+4&&P.inv<=0){const dmg=b.isDeadWest?Math.min(b.dmg||8,Math.max(0,P.hp-1)):b.dmg||8;damageP(dmg);eBullets.splice(i,1);continue;}if(bWall(b.x,b.y)||b.life<=0){eBullets.splice(i,1);continue;}}
+  for(let i=eBullets.length-1;i>=0;i--){const b=eBullets[i];if(!b)continue;if(!b.tr)b.tr=[];b.tr.push([b.x,b.y]);if(b.tr.length>4)b.tr.shift();b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(Math.hypot(b.x-P.x,b.y-P.y)<PRAD+4&&P.inv<=0){const dmg=b.isDeadWest?Math.min(b.dmg||8,Math.max(0,P.hp-1)):b.dmg||8;damageP(dmg);eBullets.splice(i,1);continue;}if(bWall(b.x,b.y)||b.life<=0){eBullets.splice(i,1);continue;}}
   // particles
   for(let i=PARTS.length-1;i>=0;i--){const p=PARTS[i];if(p.t===4){p.r=Math.min(p.mr,p.r+(p.mr-p.r)*3*dt);p.life-=dt*.022;if(p.life<=0)PARTS.splice(i,1);continue;}if(p.t===6){p.r=Math.min(p.mr,p.r+p.mr*dt*3);p.life-=dt*2.3;if(p.life<=0)PARTS.splice(i,1);continue;}const drag=p.t===2?.73:p.t===5?.57:.85;p.vx*=(1-drag*dt*3);p.vy*=(1-drag*dt*3);if(p.t===0||p.t===3)p.vy+=292*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.t===3)p.ag+=p.sp*dt;const dr=p.t===1?1.1:p.t===2?3.5:p.t===5?1.62:1.5;p.life-=dt*dr;if(p.life<=0)PARTS.splice(i,1);}
   // stale remote cleanup
@@ -2734,6 +2818,7 @@ function update(dt){
   questTick(dt);
   tickLasso(dt);
   tickSheriff(dt);
+  if(typeof FORT!=="undefined"&&typeof fortSoldiers!=="undefined")tickFort(dt);
 }
 
 // ── RENDER ─────────────────────────────────────────
@@ -2745,6 +2830,8 @@ function render(){
   drawTrain();drawParts();
   eBullets.forEach(b=>drawBullet(b,true));bullets.forEach(b=>drawBullet(b,false));
   npcs.filter(n=>n.alive&&inWorld(n.x,n.y)).forEach(drawNPC);police.forEach(p=>{if(p.alive&&inWorld(p.x,p.y))drawPolice(p);});riders.forEach(r=>{if(r.alive&&inWorld(r.x,r.y))drawRider(r);});
+  if(typeof fortSoldiers!=="undefined")fortSoldiers.forEach(s=>{if(s.alive&&inWorld(s.x,s.y))drawFortSoldier(s);});
+  if(typeof FORT!=="undefined")drawFortOverlay();
   drawRemotes();drawPlayer();drawMinimap();
 }
 
@@ -3103,6 +3190,10 @@ function startGame(){
   ALLG.forEach(g=>{g.owned=g.id==='peacemaker';});wanted=0;wDecay=0;
   bullets.length=0;eBullets.length=0;PARTS.length=0;police.length=0;riders.length=0;respawnQ.length=0;Object.keys(REMOTES).forEach(k=>delete REMOTES[k]);
   cam.x=0;cam.y=0;TRAIN.t=0;TRAIN.cd=0;TRAIN.ntf=false;
+  if(typeof FORT!=="undefined"){FORT.active=false;FORT.alarmOn=false;FORT.fires=0;FORT.exploded=false;FORT.explodeTimer=0;FORT.soldierSpawnCd=0;if(FORT.firePoints)FORT.firePoints.forEach(fp=>{fp.active=false;fp.t=0;});}
+  if(typeof fortSoldiers!=="undefined")fortSoldiers.length=0;
+  const fa=document.getElementById('fort-alarm');if(fa)fa.style.display='none';
+  const fm=document.getElementById('fort-msg');if(fm)fm.style.display='none';
   document.getElementById('bs').style.opacity='0';gameOn=true;
   P_horse='walk';P._horseSpd=200;P._horseDash=555;
   document.getElementById('horse-hud').style.display='none';
@@ -3874,11 +3965,11 @@ function _exitDuelArena(){
 //  QUEST SYSTEM
 // ══════════════════════════════════════════════════
 const QUESTS=[
-  {id:0,title:'FIRST BLOOD',desc:'Take down 3 bounty hunters in Saint Creole.',goal:'kills',target:3,reward:{money:400,xp:50}},
-  {id:1,title:'ROAD TAX',desc:'Rob the train once. Wait near the tracks for it to pass.',goal:'trains',target:1,reward:{money:800,xp:80}},
-  {id:2,title:'WANTED MAN',desc:'Reach 3 wanted stars and survive for 60 seconds.',goal:'wantedTime',target:60,reward:{money:1200,xp:120}},
-  {id:3,title:'GOLD RUSH',desc:'Earn $2000 in a single session without dying.',goal:'money',target:2000,reward:{money:1500,xp:150}},
-  {id:4,title:'THE RECKONING',desc:'Kill 5 deputies.',goal:'deputies',target:5,reward:{money:2500,xp:200,unlock:'modShop'}},
+  {id:0,title:'DEAD SHOT',desc:'Kill 5 bounty hunters anywhere in the territory.',goal:'kills',target:5,reward:{money:600,xp:60}},
+  {id:1,title:'GHOST RIDER',desc:'Reach max speed on horseback and travel 1000 units without stopping.',goal:'horseRun',target:1000,reward:{money:900,xp:90}},
+  {id:2,title:'IRON HEIST',desc:'Rob the train twice.',goal:'trains',target:2,reward:{money:1400,xp:110}},
+  {id:3,title:'BLOOD MONEY',desc:'Earn $3000 total from kills and robberies.',goal:'money',target:3000,reward:{money:2000,xp:160}},
+  {id:4,title:'FORT ASSAULT',desc:'Infiltrate Fort Crane. Set it on fire and escape alive.',goal:'fortBurned',target:1,reward:{money:4000,xp:300,unlock:'modShop'}},
 ];
 
 let questState={
@@ -3890,6 +3981,8 @@ let questState={
   sessionDeputies:0,
   sessionKills:0,
   sessionTrains:0,
+  horseRunDist:0,
+  fortBurned:0,
 };
 let questPanelOpen=false;
 
@@ -3965,6 +4058,15 @@ function questTick(dt){
   if(q.goal==='kills'){questState.progress=questState.sessionKills;}
   if(q.goal==='trains'){questState.progress=questState.sessionTrains;}
   if(q.goal==='deputies'){questState.progress=questState.sessionDeputies;}
+  if(q.goal==='fortBurned'){questState.progress=questState.fortBurned;}
+  if(q.goal==='horseRun'){
+    // track distance only while on horse at full speed
+    if(P._horseSpd>=350&&(K['KeyW']||K['KeyS']||K['KeyA']||K['KeyD'])){
+      const spd=Math.hypot(P._horseSpd||0,0);
+      questState.horseRunDist+=spd*dt;
+    }
+    questState.progress=~~questState.horseRunDist;
+  }
   if(questState.progress>=q.target&&questState.activeQuest!==null){
     showFB('✦ QUEST DONE! RETURN TO QUEST GIVER','#f0e040');
     questState.activeQuest=null; // will show claim on next visit
@@ -4056,6 +4158,250 @@ function tickSheriff(dt){
 }
 
 // Block movement when tased
+
+
+// ══════════════════════════════════════════════════
+//  FORT CRANE — Military Invasion System
+// ══════════════════════════════════════════════════
+// FORT defined at top of script
+
+
+function _spawnFortSoldiers(n){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,d=80+Math.random()*200;
+    fortSoldiers.push({
+      x:FORT.x+Math.cos(a)*d, y:FORT.y+Math.sin(a)*d,
+      hp:20, maxHp:20, ang:0,
+      spd:140, dmg:14, sr:.9, st:Math.random()*1.2,
+      alive:true, hf:0, sz:13, isSoldier:true
+    });
+  }
+}
+
+function tickFort(dt){
+  if(!gameOn||!P.alive)return;
+
+  const distToFort=Math.hypot(P.x-FORT.x, P.y-FORT.y);
+  const wasInside=FORT.active;
+  FORT.active = distToFort < FORT.radius;
+
+  // Entering fort — instant 5 stars, alarm
+  if(FORT.active && !wasInside && !FORT.alarmOn){
+    FORT.alarmOn=true;
+    wanted=5; wDecay=20; uiWanted();
+    addWanted(0); // force UI refresh
+    showFB('⚠ FORT CRANE! INSTANT BOUNTY!','#ff3300');
+    showFP('SOLDIERS CLOSING IN!');
+    document.getElementById('fort-alarm').style.display='block';
+    document.getElementById('fort-msg').style.display='block';
+    spawnPolice();
+    _spawnFortSoldiers(8);
+  }
+
+  // Soldier respawn while inside
+  if(FORT.active){
+    FORT.soldierSpawnCd-=dt;
+    if(FORT.soldierSpawnCd<=0){
+      FORT.soldierSpawnCd=12;
+      _spawnFortSoldiers(3);
+    }
+  } else if(FORT.alarmOn && !FORT.active){
+    // Left fort — turn off alarm bar
+    document.getElementById('fort-alarm').style.display='none';
+    document.getElementById('fort-msg').style.display='none';
+  }
+
+  // Update soldiers AI
+  for(let i=fortSoldiers.length-1;i>=0;i--){
+    const s=fortSoldiers[i];
+    if(!s.alive){fortSoldiers.splice(i,1);continue;}
+    if(s.hf>0)s.hf-=dt;
+    const dx=P.x-s.x, dy=P.y-s.y, d=Math.hypot(dx,dy);
+    s.ang=Math.atan2(dy,dx);
+    if(d>s.sz*2.5&&d<800){const sp=s.spd*dt/d;s.x+=dx*sp;s.y+=dy*sp;[s.x,s.y]=resolveP(s.x,s.y,s.sz);}
+    s.st-=dt;
+    if(s.st<=0&&d<480&&P.alive){
+      s.st=s.sr*(0.7+Math.random()*0.6);
+      const a2=s.ang+(Math.random()-.5)*.25;
+      eBullets.push({x:s.x,y:s.y,vx:Math.cos(a2)*420,vy:Math.sin(a2)*420,life:1.1,tr:[],dmg:s.dmg,isSoldier:true});
+    }
+    // Player bullets hitting soldier
+    for(let j=bullets.length-1;j>=0;j--){
+      const b=bullets[j];
+      if(Math.hypot(b.x-s.x,b.y-s.y)<s.sz+5){
+        s.hp-=b.dmg; s.hf=.15; pBlood(s.x,s.y,6); cam.shake=Math.max(cam.shake,3);
+        bullets.splice(j,1);
+        if(s.hp<=0){
+          s.alive=false;
+          addXP(20);
+          if(questState.activeQuest!==null)questState.sessionKills++;
+          pPool(s.x,s.y);
+        }
+        break;
+      }
+    }
+  }
+
+  // Fire points — player holds F near them to light
+  FORT.firePoints.forEach(fp=>{
+    if(fp.active){
+      fp.t+=dt;
+      // Spawn fire particles from world coords
+      if(Math.random()<dt*8){
+        const ox=(Math.random()-.5)*30, oy=(Math.random()-.5)*30;
+        PARTS.push({t:5,x:fp.x+ox,y:fp.y+oy,
+          vx:(Math.random()-.5)*60,vy:-40-Math.random()*80,
+          r:3+Math.random()*5,life:.6+Math.random()*.4});
+        // Smoke
+        PARTS.push({t:1,x:fp.x+ox,y:fp.y-20+oy,
+          vx:(Math.random()-.5)*20,vy:-60-Math.random()*40,
+          r:4+Math.random()*8,life:.9});
+      }
+      return;
+    }
+    // Can light if player close + pressing F
+    const fd=Math.hypot(P.x-fp.x,P.y-fp.y);
+    if(fd<70&&FORT.active&&K['KeyF']){
+      fp.active=true;
+      FORT.fires++;
+      cam.shake=8;
+      showFB('🔥 FIRE SET! ('+FORT.fires+'/'+FORT.firesToWin+')','#ff6600');
+      pExp(fp.x,fp.y);
+      // Quest progress
+      if(FORT.fires>=FORT.firesToWin&&!FORT.exploded){
+        FORT.explodeTimer=FORT.explodeDelay;
+        showFP('RUN! THE FORT WILL BLOW!');
+        showFB('💥 GET OUT NOW!','#ff0000');
+      }
+    }
+    // Show hint
+    if(fd<80&&FORT.active&&!fp.active){
+      showFB('[F] SET FIRE — '+fp.bld,'#ff8800');
+    }
+  });
+
+  // Explosion countdown
+  if(FORT.fires>=FORT.firesToWin&&!FORT.exploded){
+    FORT.explodeTimer-=dt;
+    if(FORT.explodeTimer<=0){
+      _fortExplode();
+    }
+  }
+}
+
+function _fortExplode(){
+  FORT.exploded=true;
+  // Chain explosions at each fire point
+  FORT.firePoints.filter(fp=>fp.active).forEach((fp,i)=>{
+    setTimeout(()=>{
+      pExp(fp.x,fp.y);
+      pExp(fp.x+30,fp.y-20);
+      pExp(fp.x-20,fp.y+30);
+      cam.shake=30;
+      // Damage any soldiers near blast
+      fortSoldiers.forEach(s=>{
+        if(!s.alive)return;
+        if(Math.hypot(s.x-fp.x,s.y-fp.y)<120){s.hp-=50;if(s.hp<=0)s.alive=false;}
+      });
+    },i*400);
+  });
+  // Final massive explosion at centre
+  setTimeout(()=>{
+    for(let i=0;i<6;i++){
+      setTimeout(()=>{
+        const ox=(Math.random()-.5)*200,oy=(Math.random()-.5)*200;
+        pExp(FORT.x+ox,FORT.y+oy);
+        cam.shake=Math.max(cam.shake,35);
+      },i*200);
+    }
+    showFP('💥 FORT CRANE DESTROYED!');
+    showFB('💥 FORT CRANE DESTROYED! ESCAPE!','#ff4400');
+
+    // Quest complete
+    questState.fortBurned=1;
+    sysChat('💥 '+P.name+' DESTROYED FORT CRANE!');
+
+    // Reward XP + reset alarm
+    addXP(500);
+    addMoney(1000);
+    // Clear soldiers
+    fortSoldiers.forEach(s=>s.alive=false);
+    FORT.alarmOn=false;
+    document.getElementById('fort-alarm').style.display='none';
+    document.getElementById('fort-msg').style.display='none';
+  }, FORT.firePoints.filter(fp=>fp.active).length*400+600);
+}
+
+function drawFortSoldier(s){
+  if(!s.alive)return;
+  const[sx,sy]=ws(s.x,s.y);
+  if(sx<-60||sx>W+60||sy<-60||sy>H+60)return;
+  const L=lm();
+  // Olive green uniform body
+  X.save();X.translate(sx,sy);X.rotate(s.ang+Math.PI/2);
+  if(s.hf>0){X.shadowColor='#ff4400';X.shadowBlur=12;}
+  X.fillStyle='rgba(0,0,0,.15)';X.beginPath();X.ellipse(2,4,s.sz,s.sz*.4,0,0,Math.PI*2);X.fill();
+  X.fillStyle=s.hf>0?'#cc3300':`rgb(${~~(58*L.r)},${~~(80*L.g)},${~~(38*L.b)})`;
+  X.beginPath();X.arc(0,0,s.sz,0,Math.PI*2);X.fill();
+  // Face
+  X.fillStyle='#c8a878';X.beginPath();X.arc(0,-s.sz*.12,s.sz*.52,0,Math.PI*2);X.fill();
+  // Military helmet
+  X.fillStyle=`rgb(${~~(40*L.r)},${~~(56*L.g)},${~~(25*L.b)})`;
+  X.beginPath();X.ellipse(0,-s.sz*.65,s.sz*.72,s.sz*.22,0,0,Math.PI*2);X.fill();
+  X.fillRect(-s.sz*.42,-s.sz-2,s.sz*.84,s.sz*.66);
+  // Rifle
+  X.fillStyle='#2a1a0a';X.fillRect(s.sz*.52,-3,s.sz*1.1,4);
+  X.restore();
+  // HP
+  if(s.hp<s.maxHp){
+    const bw=s.sz*2.4,bh=3,bx=sx-bw/2,by=sy-s.sz-12;
+    X.fillStyle='rgba(0,0,0,.5)';X.fillRect(bx,by,bw,bh);
+    X.fillStyle='#4ac040';X.fillRect(bx,by,bw*(s.hp/s.maxHp),bh);
+  }
+  // SOLDIER label
+  X.fillStyle='rgba(4,2,1,.7)';X.fillRect(sx-22,sy-s.sz-22,44,11);
+  X.fillStyle='#88cc44';X.font='6px Georgia';X.textAlign='center';X.textBaseline='middle';
+  X.fillText('SOLDIER',sx,sy-s.sz-17);
+}
+
+function drawFortOverlay(){
+  // Draw fire points as glowing markers
+  FORT.firePoints.forEach(fp=>{
+    const[sx,sy]=ws(fp.x,fp.y);
+    if(sx<-60||sx>W+60||sy<-60||sy>H+60)return;
+    if(!fp.active){
+      // Unlit — show kerosene barrel icon
+      const near=Math.hypot(P.x-fp.x,P.y-fp.y)<80;
+      X.save();
+      X.fillStyle=near?'rgba(255,140,0,.9)':'rgba(180,100,0,.6)';
+      if(near){X.shadowColor='#ff8800';X.shadowBlur=14;}
+      X.font=(near?'bold ':'')+' 18px serif';X.textAlign='center';X.textBaseline='middle';
+      X.fillText('🛢',sx,sy);
+      X.restore();
+    }
+    // Active fires drawn via PARTS particles — handled by render loop
+  });
+
+  // Fort boundary warning glow when outside
+  const d=Math.hypot(P.x-FORT.x,P.y-FORT.y);
+  if(d>FORT.radius-80&&d<FORT.radius+200){
+    const t2=Date.now()/600;
+    const[fx,fy]=ws(FORT.x,FORT.y);
+    X.save();X.globalAlpha=0.08+Math.sin(t2)*.04;
+    X.strokeStyle='#ff3300';X.lineWidth=3;
+    X.beginPath();X.arc(fx,fy,FORT.radius*(innerWidth/1200),0,Math.PI*2);X.stroke();
+    X.restore();
+  }
+}
+
+// Draw fort on minimap
+function _drawFortMinimap(MX2,S,mw,mh){
+  const fx=mw/2+(FORT.x-cam.x)*S, fy=mh/2+(FORT.y-cam.y)*S;
+  const t2=Date.now()/400;
+  MX2.fillStyle=FORT.alarmOn?`rgba(255,60,0,${0.6+Math.sin(t2)*.4})`:'rgba(180,160,40,.7)';
+  MX2.font='bold 7px serif';MX2.textAlign='center';
+  MX2.fillText('⚑',fx,fy+3);
+}
 
 // ── CHAT UI ───────────────────────────────────────
 function addChat(name,msg,sys){
