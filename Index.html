@@ -407,6 +407,51 @@ canvas#c{cursor:none;display:block;}
 #duel-result-sub{font-size:10px;letter-spacing:5px;margin-top:10px;display:none;}
 #duel-fade{position:fixed;inset:0;background:#000;z-index:890;pointer-events:none;opacity:0;transition:opacity .6s;}
 
+
+/* ═══ QUEST SYSTEM ═══ */
+#quest-panel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(4,1,0,.97);border:2px solid rgba(220,200,80,.4);width:360px;max-width:96vw;z-index:600;display:none;pointer-events:all;box-shadow:0 0 60px rgba(255,220,80,.15);}
+#quest-panel.open{display:block;}
+.qp-head{padding:14px 20px 10px;border-bottom:1px solid rgba(200,170,30,.2);background:linear-gradient(180deg,rgba(255,240,100,.06),transparent);}
+.qp-head h2{font-family:'Rye',serif;color:#f0e040;font-size:12px;letter-spacing:5px;margin:0 0 2px;text-shadow:0 0 14px rgba(255,240,0,.4);}
+.qp-head p{font-size:6px;color:#8a7010;letter-spacing:3px;margin:0;}
+.qp-body{padding:14px 18px;}
+.qp-desc{font-size:8px;color:#c0a020;letter-spacing:2px;line-height:1.7;margin-bottom:12px;}
+.qp-progress{font-size:6px;color:#7a6010;letter-spacing:3px;margin-bottom:10px;}
+.qp-bar{width:100%;height:5px;background:rgba(20,10,0,.8);border:1px solid rgba(100,80,10,.3);margin-bottom:12px;}
+.qp-bar-fill{height:100%;background:linear-gradient(90deg,#a07010,#f0d040);transition:width .4s;}
+.qp-accept{font-family:'Rye',serif;background:rgba(80,60,0,.4);border:1px solid rgba(200,160,10,.5);color:#e0c020;padding:9px 0;font-size:8px;letter-spacing:5px;cursor:pointer;width:100%;transition:all .18s;}
+.qp-accept:hover{background:rgba(120,90,0,.5);border-color:rgba(240,200,20,.7);}
+.qp-close{font-family:'Rye',serif;background:transparent;border:1px solid rgba(80,60,5,.3);color:#4a3810;padding:7px 0;font-size:6px;letter-spacing:5px;cursor:pointer;width:100%;margin-top:6px;transition:all .18s;}
+.qp-close:hover{border-color:rgba(140,110,10,.5);color:#806020;}
+/* Quest HUD indicator */
+#quest-hud{position:fixed;top:50px;right:16px;background:rgba(4,2,0,.9);border:1px solid rgba(180,150,10,.3);padding:8px 12px;min-width:160px;display:none;z-index:12;}
+#quest-hud.active{display:block;}
+#quest-hud-title{font-family:'Rye',serif;font-size:7px;color:#e0c030;letter-spacing:4px;margin-bottom:4px;}
+#quest-hud-desc{font-size:6px;color:#8a7010;letter-spacing:1px;line-height:1.5;}
+#quest-hud-prog{font-size:5px;color:#5a4808;letter-spacing:2px;margin-top:3px;}
+/* MOD SHOP */
+#mod-shop{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:600;pointer-events:all;}
+#mod-shop.open{display:flex;}
+#mod-shopb{background:rgba(4,2,0,.98);border:1px solid rgba(120,80,180,.4);width:380px;max-width:96vw;box-shadow:0 0 50px rgba(100,50,200,.2);}
+.ms-head{padding:14px 20px 10px;border-bottom:1px solid rgba(100,60,180,.2);background:linear-gradient(180deg,rgba(80,40,160,.08),transparent);}
+.ms-head h2{font-family:'Rye',serif;color:#c090f0;font-size:12px;letter-spacing:5px;margin:0 0 2px;}
+.ms-head p{font-size:6px;color:#6040a0;letter-spacing:3px;margin:0;}
+.ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px;}
+.ms-item{background:rgba(8,4,1,.85);border:1px solid rgba(80,50,120,.25);padding:10px;cursor:pointer;text-align:center;transition:all .18s;}
+.ms-item:hover:not(.ms-locked){border-color:rgba(160,100,240,.5);background:rgba(14,8,2,.95);}
+.ms-item.ms-locked{opacity:.4;cursor:not-allowed;}
+.ms-item.ms-owned{border-color:rgba(80,200,80,.4);}
+.ms-icon{font-size:22px;margin-bottom:4px;}
+.ms-name{font-family:'Rye',serif;color:#b080e0;font-size:7px;letter-spacing:2px;}
+.ms-desc{font-size:5px;color:#5a3880;letter-spacing:1px;margin:3px 0;}
+.ms-price{font-size:7px;color:#e0c030;font-family:'Rye',serif;}
+.ms-owned-tag{font-size:5px;color:#40c040;letter-spacing:2px;}
+.ms-close{font-family:'Rye',serif;background:transparent;border:1px solid rgba(80,50,100,.25);color:#4a2880;padding:7px 0;font-size:6px;letter-spacing:5px;cursor:pointer;display:block;margin:4px auto 12px;width:90%;}
+.ms-close:hover{border-color:rgba(140,90,200,.5);color:#9060c0;}
+/* TASER effect */
+#taser-overlay{position:fixed;inset:0;background:rgba(40,80,255,.25);z-index:800;display:none;pointer-events:none;animation:taserFlash .12s infinite alternate;}
+@keyframes taserFlash{from{opacity:0}to{opacity:1}}
+
 </style>
 </head>
 <body>
@@ -614,6 +659,33 @@ canvas#c{cursor:none;display:block;}
 </div>
 <div id="duel-fade"></div>
 
+<!-- QUEST PANEL -->
+<div id="quest-panel">
+  <div class="qp-head"><h2>✦ QUEST GIVER ✦</h2><p id="qp-subhead">STRANGER IN THE SHADOWS</p></div>
+  <div class="qp-body">
+    <div class="qp-desc" id="qp-desc">...</div>
+    <div class="qp-progress" id="qp-prog-text">PROGRESS: 0 / 0</div>
+    <div class="qp-bar"><div class="qp-bar-fill" id="qp-bar-fill" style="width:0%"></div></div>
+    <button class="qp-accept" id="qp-accept-btn" onclick="questAccept()">ACCEPT QUEST</button>
+    <button class="qp-close" onclick="closeQuestPanel()">NOT NOW</button>
+  </div>
+</div>
+<!-- QUEST HUD -->
+<div id="quest-hud">
+  <div id="quest-hud-title">ACTIVE QUEST</div>
+  <div id="quest-hud-desc"></div>
+  <div id="quest-hud-prog"></div>
+</div>
+<!-- MOD SHOP -->
+<div id="mod-shop">
+  <div id="mod-shopb">
+    <div class="ms-head"><h2>⚙ MOD SHOP</h2><p>MODIFICATIONS & SPECIAL GEAR</p></div>
+    <div class="ms-grid" id="mod-shop-grid"></div>
+    <button class="ms-close" onclick="closeModShop()">RIDE ON</button>
+  </div>
+</div>
+<!-- TASER OVERLAY -->
+<div id="taser-overlay"></div>
 <!-- WEAPON WHEEL -->
 <div id="ww">
   <canvas id="ww-canvas" width="500" height="500"></canvas>
@@ -751,6 +823,7 @@ canvas#c{cursor:none;display:block;}
 </div>
 
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <script>
 'use strict';
 // ══════════════════════════════════════════════════
@@ -771,7 +844,7 @@ addEventListener('mousemove',e=>{XH.style.left=e.clientX+'px';XH.style.top=e.cli
 
 // input
 const K={},mouse={x:0,y:0,wx:0,wy:0,dn:false};
-let chatOpen=false,shopOpen=false,gstOpen=false,casinoOpen=false,adminOpen=false,ncodeOpen=false,clothOpen=false,stableOpen=false,wwOpen=false,gameOn=false;
+let chatOpen=false,shopOpen=false,gstOpen=false,casinoOpen=false,adminOpen=false,ncodeOpen=false,clothOpen=false,stableOpen=false,wwOpen=false,gameOn=false,modShopOpen=false;
 addEventListener('keydown',e=>{
   if(['mpname','mproom','cif'].includes(document.activeElement?.id))return;
   K[e.code]=true;
@@ -782,7 +855,7 @@ addEventListener('keydown',e=>{
   if(e.code==='KeyG')robTrain();
   if(e.code==='KeyT'){e.preventDefault();if(!chatOpen){chatOpen=true;document.getElementById('ci').classList.add('on');document.getElementById('cif').focus();}}
   if(e.code==='Tab'){e.preventDefault();if(!wwOpen)openWeaponWheel();}
-  if(e.code==='Escape'){closeShop();closeGStore();closeCasino();closeAdmin();closeNcode();closeClothing();closeStable();if(wwOpen)closeWeaponWheel();}
+  if(e.code==='Escape'){closeShop();closeGStore();closeCasino();closeAdmin();closeNcode();closeClothing();closeStable();if(wwOpen)closeWeaponWheel();closeModShop();closeQuestPanel();}
 });
 addEventListener('keyup',e=>{
   delete K[e.code];
@@ -980,6 +1053,9 @@ const ALLG=[...GUNS.pistols,...GUNS.shotguns,...GUNS.rifles,RAINBOW_GUN];
 
 // ── PLAYER ───────────────────────────────────────
 const PRAD=14;
+const RENDER_DIST=900; // world units — cull beyond this for performance
+function inView(wx,wy,pad=80){return Math.abs(wx-cam.x)<W/2+pad&&Math.abs(wy-cam.y)<H/2+pad;}
+function inWorld(wx,wy,r=RENDER_DIST){return Math.hypot(wx-P.x,wy-P.y)<r;}
 const P={
   x:0,y:80,angle:0,hp:100,maxHp:100,money:0,lv:1,xp:0,alive:true,name:'OUTLAW',
   reloading:false,reloadT:0,shootCD:0,dashCD:0,dashT:0,dvx:0,dvy:0,inv:0,
@@ -992,7 +1068,7 @@ function addXP(a){
   if(P.xp>=n){P.xp-=n;P.lv++;P.maxHp=100+(P.lv-1)*15;P.hp=Math.min(P.hp+30,P.maxHp);showFP('LEVEL '+P.lv+'!');spawnPolice();}
   uiLv();
 }
-function addMoney(a){P.money+=a;document.getElementById('hmv').textContent='$'+P.money.toLocaleString();}
+function addMoney(a){P.money+=a;document.getElementById('hmv').textContent='$'+P.money.toLocaleString();if(questState&&questState.activeQuest!==null&&a>0)questState.sessionMoney+=a;}
 let wanted=0,wDecay=0;const WDM=14;
 function addWanted(n){wanted=Math.min(5,wanted+n);wDecay=WDM;uiWanted();}
 function uiWanted(){document.getElementById('ws').textContent='★'.repeat(wanted)+'☆'.repeat(5-wanted);}
@@ -1417,6 +1493,14 @@ function buildNPCs(){
   // Dead West always spawns at game start in Saint Creole
   deadWestNPC=mkDeadWest();
   npcs.push(deadWestNPC);
+  // Quest Giver — glowing white stranger behind the Gun Shop in Saint Creole
+  npcs.push({x:320,y:-135,hp:9999,maxHp:9999,alive:true,hf:0,sz:14,
+    ang:0,spd:0,hostile:false,isBounty:false,isCiv:false,
+    isDeadWest:false,isQuestGiver:true,ti:0});
+  // Mod Shop NPC — behind the Harbour in Silverado Falls
+  npcs.push({x:870,y:2370,hp:9999,maxHp:9999,alive:true,hf:0,sz:14,
+    ang:0,spd:0,hostile:false,isBounty:false,isCiv:false,
+    isDeadWest:false,isModShopNPC:true,ti:2});
   // Despawn after 2 minutes if not killed
   setTimeout(()=>{
     if(deadWestNPC&&deadWestNPC.alive){
@@ -1427,7 +1511,25 @@ function buildNPCs(){
     }
   },120000);
 }
-function spawnPolice(){const n=3+P.lv;for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,d=480+Math.random()*200;police.push({x:P.x+Math.cos(a)*d,y:P.y+Math.sin(a)*d,ang:0,hp:8+P.lv*2,maxHp:8+P.lv*2,spd:100+P.lv*5,dmg:10+P.lv*2,sr:1.4,st:Math.random()*1.5,alive:true,hf:0,sz:13});}showFP('DEPUTIES INCOMING!');}
+function spawnPolice(){
+  const n=3+P.lv;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,d=480+Math.random()*200;
+    police.push({x:P.x+Math.cos(a)*d,y:P.y+Math.sin(a)*d,ang:0,hp:8+P.lv*2,maxHp:8+P.lv*2,spd:100+P.lv*5,dmg:10+P.lv*2,sr:1.4,st:Math.random()*1.5,alive:true,hf:0,sz:13,isSheriff:false});
+  }
+  // Spawn Sheriff at wanted 5 + level 5+
+  if(wanted>=5&&P.lv>=5){
+    for(let i=0;i<2;i++){
+      const a=Math.random()*Math.PI*2,d=500+Math.random()*150;
+      police.push({x:P.x+Math.cos(a)*d,y:P.y+Math.sin(a)*d,ang:0,
+        hp:40+P.lv*4,maxHp:40+P.lv*4,spd:160+P.lv*8,dmg:18+P.lv*3,
+        sr:0.6,st:0,alive:true,hf:0,sz:15,isSheriff:true,taserCd:0,taserRange:180});
+    }
+    showFP('⭐ SHERIFF INCOMING!');
+  } else {
+    showFP('DEPUTIES INCOMING!');
+  }
+}
 function spawnRiders(npc){const cnt=Math.min(10,5+~~(npc.bounty/100));showFP((npc.gN||'GANG')+' RIDES OUT!');for(let i=0;i<cnt;i++){const a=Math.random()*Math.PI*2,d=500+Math.random()*260;riders.push({x:P.x+Math.cos(a)*d,y:P.y+Math.sin(a)*d,ang:0,hp:3+~~(npc.bounty/80),maxHp:3+~~(npc.bounty/80),spd:165+npc.bounty/6,dmg:8+~~(npc.bounty/60),sr:Math.max(.8,1.8-npc.bounty/600),st:Math.random()*2,alive:true,hf:0,sz:18,col:npc.gC||'#5a1010',hat:npc.gH||'#1a0404',gN:npc.gN});}}
 
 // ── TRAIN ─────────────────────────────────────────
@@ -1442,7 +1544,7 @@ function updTrain(dt){
   if(TRAIN.ntfT>0){TRAIN.ntfT-=dt;if(TRAIN.ntfT<=0)document.getElementById('trb').style.opacity='0';}
 }
 function showTrn(t,h){document.getElementById('trt').textContent=t;document.getElementById('trh').textContent=h;document.getElementById('trb').style.opacity='1';TRAIN.ntfT=5;}
-function robTrain(){if(!TRAIN.robbable||!P.alive||!gameOn)return;const loot=~~(Math.random()*2000)+1;addMoney(loot);addXP(~~(loot/8)+10);addWanted(2);showFB('🚂 ROBBED! +$'+loot,'#d08c18');showFT('DEPUTIES ALERTED!');document.getElementById('trb').style.opacity='0';TRAIN.cd=55+Math.random()*20;TRAIN.t=0;TRAIN.ntf=false;spawnPolice();}
+function robTrain(){if(!TRAIN.robbable||!P.alive||!gameOn)return;const loot=~~(Math.random()*2000)+1;addMoney(loot);addXP(~~(loot/8)+10);addWanted(2);showFB('🚂 ROBBED! +$'+loot,'#d08c18');if(questState.activeQuest!==null){questState.sessionTrains++;questState.sessionMoney+=loot;}showFT('DEPUTIES ALERTED!');document.getElementById('trb').style.opacity='0';TRAIN.cd=55+Math.random()*20;TRAIN.t=0;TRAIN.ntf=false;spawnPolice();}
 
 // ── PARTICLES ─────────────────────────────────────
 const PARTS=[];
@@ -1478,7 +1580,15 @@ function equipGun(id){const g=ALLG.find(g=>g.id===id);if(!g)return;P.gunId=id;P.
 // ── SHOPS ─────────────────────────────────────────
 let shopTab='pistols';
 function tryInteract(){
-  if(!P.alive||shopOpen||gstOpen||casinoOpen||adminOpen||ncodeOpen||clothOpen||stableOpen)return;
+  if(!P.alive||shopOpen||gstOpen||casinoOpen||adminOpen||ncodeOpen||clothOpen||stableOpen||modShopOpen||questPanelOpen)return;
+  // Quest Giver interaction
+  for(const n of npcs){
+    if(n.isQuestGiver&&Math.hypot(n.x-P.x,n.y-P.y)<80){openQuestPanel();return;}
+    if(n.isModShopNPC&&Math.hypot(n.x-P.x,n.y-P.y)<80){
+      if(questState.questsCompleted<5){showFB('COMPLETE 5 QUESTS FIRST','#c04010');return;}
+      openModShop();return;
+    }
+  }
   // Secret zone: behind the HARBOUR CUSTOMS in Saint Creole
   if(Math.abs(P.x-975)<80&&P.y>2875&&P.y<3010){openNcode();return;}
   for(const t of TOWNS)for(const b of t.blds){
@@ -1962,6 +2072,44 @@ function drawNPC(n){
   if(!n.alive)return;
   const[sx,sy]=ws(n.x,n.y);
   if(sx<-140||sx>W+140||sy<-140||sy>H+140)return;
+  // Quest Giver — bright white glowing stranger
+  if(n.isQuestGiver){
+    const t2=Date.now()/1000;
+    const pulse=0.7+Math.sin(t2*2.2)*0.3;
+    X.save();
+    X.shadowColor='rgba(255,255,255,0.95)';X.shadowBlur=28*pulse;
+    X.fillStyle=`rgba(255,255,255,${0.85+Math.sin(t2*3)*0.1})`;
+    X.beginPath();X.arc(sx,sy-14,9,0,Math.PI*2);X.fill(); // head
+    X.fillRect(sx-6,sy-5,12,18); // body
+    X.fillRect(sx-10,sy,5,14); // left leg
+    X.fillRect(sx+5,sy,5,14); // right leg
+    X.fillRect(sx-14,sy-4,8,6); // left arm
+    X.fillRect(sx+6,sy-4,8,6); // right arm
+    X.restore();
+    // "?" indicator
+    X.save();X.font='bold 14px serif';X.fillStyle='#ffff80';
+    X.shadowColor='rgba(255,255,0,.9)';X.shadowBlur=10;
+    X.textAlign='center';X.fillText('?',sx,sy-28);X.restore();
+    return;
+  }
+  // Mod Shop NPC — purple-tinted figure
+  if(n.isModShopNPC){
+    const unlocked=questState.questsCompleted>=5;
+    const t2=Date.now()/1000;
+    X.save();
+    X.shadowColor=unlocked?'rgba(160,80,255,0.9)':'rgba(80,80,80,.5)';X.shadowBlur=18;
+    X.fillStyle=unlocked?`rgba(200,150,255,${0.8+Math.sin(t2*2)*0.15})`:'rgba(120,120,120,0.6)';
+    X.beginPath();X.arc(sx,sy-14,9,0,Math.PI*2);X.fill();
+    X.fillRect(sx-6,sy-5,12,18);X.fillRect(sx-10,sy,5,14);X.fillRect(sx+5,sy,5,14);
+    X.fillRect(sx-14,sy-4,8,6);X.fillRect(sx+6,sy-4,8,6);
+    X.restore();
+    if(unlocked){
+      X.save();X.font='bold 13px serif';X.fillStyle='#c090ff';
+      X.shadowColor='rgba(160,80,255,.9)';X.shadowBlur=10;
+      X.textAlign='center';X.fillText('⚙',sx,sy-28);X.restore();
+    }
+    return;
+  }
   const L=lm();
   const t=Date.now()/1000;
 
@@ -2287,7 +2435,32 @@ function drawNPC(n){
 }
 
 function drawPolice(p){
-  if(!p.alive)return;const[sx,sy]=ws(p.x,p.y);if(sx<-80||sx>W+80||sy<-80||sy>H+80)return;
+  const[sx,sy]=ws(p.x,p.y);
+  if(sx<-60||sx>W+60||sy<-60||sy>H+60)return;
+  if(p.isSheriff){
+    const L=lm();const hf=p.hf>0;
+    // Gold/brown sheriff
+    X.fillStyle=hf?'#ff8020':`rgb(${~~(180*L.r)},${~~(130*L.g)},${~~(20*L.b)})`;
+    X.beginPath();X.arc(sx,sy-12,9,0,Math.PI*2);X.fill();
+    X.fillStyle=hf?'#cc5010':`rgb(${~~(140*L.r)},${~~(80*L.g)},${~~(10*L.b)})`;
+    X.fillRect(sx-7,sy-3,14,17);X.fillRect(sx-10,sy+14,6,12);X.fillRect(sx+4,sy+14,6,12);
+    // Gold star badge
+    X.fillStyle='#ffe030';X.font='10px serif';X.textAlign='center';
+    X.fillText('★',sx,sy+4);
+    // Hat
+    X.fillStyle='#8a6010';X.fillRect(sx-9,sy-24,18,7);X.fillRect(sx-6,sy-31,12,8);
+    // Taser indicator (blue glow)
+    if((p.taserCd||0)<1){
+      X.save();X.shadowColor='rgba(80,120,255,.9)';X.shadowBlur=16;
+      X.fillStyle='rgba(80,120,255,.6)';X.beginPath();X.arc(sx+8,sy-2,4,0,Math.PI*2);X.fill();
+      X.restore();
+    }
+    // HP bar
+    const bw=26,bh=3,bx=sx-bw/2,by=sy-34;
+    X.fillStyle='rgba(0,0,0,.5)';X.fillRect(bx,by,bw,bh);
+    X.fillStyle='#ffe030';X.fillRect(bx,by,bw*(p.hp/p.maxHp),bh);
+    return;
+  }
   const L=lm();X.save();X.translate(sx,sy);X.rotate(p.ang+Math.PI/2);
   if(p.hf>0){X.shadowColor='#3a74e8';X.shadowBlur=13;}
   X.fillStyle='rgba(0,0,0,.17)';X.beginPath();X.ellipse(2,4,p.sz,p.sz*.4,0,0,Math.PI*2);X.fill();
@@ -2442,7 +2615,7 @@ function drawMinimap(){
   MX.fillStyle='rgba(10,38,28,.5)';MX.fillRect(mw/2+(SWAMP.x-cam.x)*S,mh/2+(SWAMP.y-cam.y)*S,SWAMP.w*S,SWAMP.h*S);
   TOWNS.forEach(t=>{const tx=mw/2+(t.x-cam.x)*S,ty=mh/2+(t.y-cam.y)*S;MX.fillStyle='rgba(165,115,28,.28)';MX.beginPath();MX.arc(tx,ty,t.r*S,0,Math.PI*2);MX.fill();});
   MX.strokeStyle='rgba(108,86,48,.43)';MX.lineWidth=1;MX.setLineDash([3,4]);MX.beginPath();TRACK.forEach((p,i)=>{const tx=mw/2+(p.x-cam.x)*S,ty=mh/2+(p.y-cam.y)*S;i===0?MX.moveTo(tx,ty):MX.lineTo(tx,ty);});MX.stroke();MX.setLineDash([]);
-  npcs.forEach(n=>{if(!n.alive)return;const nx=mw/2+(n.x-cam.x)*S,ny=mh/2+(n.y-cam.y)*S;MX.fillStyle=n.isBounty?'#be2614':'#384ebe';MX.beginPath();MX.arc(nx,ny,2.3,0,Math.PI*2);MX.fill();});
+  npcs.forEach(n=>{if(!n.alive)return;if(!inWorld(n.x,n.y,1200))return;const nx=mw/2+(n.x-cam.x)*S,ny=mh/2+(n.y-cam.y)*S;MX.fillStyle=n.isBounty?'#be2614':'#384ebe';MX.beginPath();MX.arc(nx,ny,2.3,0,Math.PI*2);MX.fill();});
   police.forEach(p=>{if(!p.alive)return;const nx=mw/2+(p.x-cam.x)*S,ny=mh/2+(p.y-cam.y)*S;MX.fillStyle='#3674e8';MX.beginPath();MX.arc(nx,ny,2.3,0,Math.PI*2);MX.fill();});
   MX.font='12px serif';MX.fillText('🚂',mw/2+(TRAIN.x-cam.x)*S-4,mh/2+(TRAIN.y-cam.y)*S+4);
   Object.values(REMOTES).forEach(r=>{const rx=mw/2+(r.x-cam.x)*S,ry=mh/2+(r.y-cam.y)*S;MX.fillStyle='#d8c038';MX.beginPath();MX.arc(rx,ry,2.8,0,Math.PI*2);MX.fill();});
@@ -2479,7 +2652,7 @@ function killNPC(n){
     showFB('💀 DEAD WEST DEFEATED! +$9999','#ff4400');showFK('+$9999 | +500XP | LEGEND');
     deadWestNPC=null;mpKill(n.x,n.y);return;
   }
-  if(n.isBounty){addMoney(n.bounty);const xpG=~~(n.bounty/4)+15;addXP(xpG);showFB('☠ +$'+n.bounty,'#dcc018');showFK('+$'+n.bounty+' | +'+xpG+'XP');if(n.isG)setTimeout(()=>spawnRiders(n),1500);addWanted(1);mpKill(n.x,n.y);const ti=n.ti;respawnQ.push({t:28+Math.random()*14,fn:()=>mkBounty(ti)});}
+  if(n.isBounty){if(questState.activeQuest!==null)questState.sessionKills++;addMoney(n.bounty);const xpG=~~(n.bounty/4)+15;addXP(xpG);showFB('☠ +$'+n.bounty,'#dcc018');showFK('+$'+n.bounty+' | +'+xpG+'XP');if(n.isG)setTimeout(()=>spawnRiders(n),1500);addWanted(1);mpKill(n.x,n.y);const ti=n.ti;respawnQ.push({t:28+Math.random()*14,fn:()=>mkBounty(ti)});}
   else if(n.isCiv){addWanted(2);showFK('INNOCENT KILLED');addXP(2);const ti=n.ti;respawnQ.push({t:14,fn:()=>mkCiv(ti)});}
 }
 
@@ -2495,7 +2668,8 @@ function update(dt){
   if((K['ShiftLeft']||K['ShiftRight'])&&P.dashCD<=0&&P.dashT<=0){const dx=(K['KeyD']?1:0)-(K['KeyA']?1:0),dy=(K['KeyS']?1:0)-(K['KeyW']?1:0);if(dx||dy){const l=Math.hypot(dx,dy);P.dvx=dx/l*(P._horseDash||555);P.dvy=dy/l*(P._horseDash||555);P.dashT=.15;P.dashCD=.7;P.inv=.2;cam.shake=Math.max(cam.shake,4);}}
   if(P.dashCD>0)P.dashCD-=dt;
   let mx=0,my=0;
-  if(P.dashT>0){P.dashT-=dt;mx=P.dvx;my=P.dvy;}
+  if(taserActive){mx=0;my=0;}  // frozen by taser
+  else if(P.dashT>0){P.dashT-=dt;mx=P.dvx;my=P.dvy;}
   else{if(K['KeyW']||K['ArrowUp'])my-=1;if(K['KeyS']||K['ArrowDown'])my+=1;if(K['KeyA']||K['ArrowLeft'])mx-=1;if(K['KeyD']||K['ArrowRight'])mx+=1;const ml=Math.hypot(mx,my)||1;if(mx||my){mx=mx/ml*(P._horseSpd||200);my=my/ml*(P._horseSpd||200);}}
   P.x+=mx*dt;P.y+=my*dt;[P.x,P.y]=resolveP(P.x,P.y,PRAD);
   cam.x+=(P.x-cam.x)*10*dt;cam.y+=(P.y-cam.y)*10*dt;
@@ -2542,9 +2716,9 @@ function update(dt){
   // player bullets
   for(let i=bullets.length-1;i>=0;i--){
     const b=bullets[i];if(!b.sg){b.tr.push([b.x,b.y]);if(b.tr.length>6)b.tr.shift();}b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;let hit=false;
-    if(b.sp==='explode'){const near=npcs.some(n=>n.alive&&Math.hypot(b.x-n.x,b.y-n.y)<92)||police.some(p=>p.alive&&Math.hypot(b.x-p.x,b.y-p.y)<92)||riders.some(r=>r.alive&&Math.hypot(b.x-r.x,b.y-r.y)<92);if(near||bWall(b.x,b.y)||b.life<=0){pExp(b.x,b.y);cam.shake=Math.max(cam.shake,14);npcs.forEach(n=>{if(!n.alive)return;if(Math.hypot(b.x-n.x,b.y-n.y)<76){n.hp-=3;n.hf=.12;n.hostile=true;if(n.hp<=0)killNPC(n);}});police.forEach(p=>{if(!p.alive)return;if(Math.hypot(b.x-p.x,b.y-p.y)<76){p.hp-=4;p.hf=.12;if(p.hp<=0)p.alive=false;}});riders.forEach(r=>{if(!r.alive)return;if(Math.hypot(b.x-r.x,b.y-r.y)<76){r.hp-=4;r.hf=.12;if(r.hp<=0){r.alive=false;addXP(12);}}});bullets.splice(i,1);continue;}}
+    if(b.sp==='explode'){const near=npcs.some(n=>n.alive&&Math.hypot(b.x-n.x,b.y-n.y)<92)||police.some(p=>p.alive&&Math.hypot(b.x-p.x,b.y-p.y)<92)||riders.some(r=>r.alive&&Math.hypot(b.x-r.x,b.y-r.y)<92);if(near||bWall(b.x,b.y)||b.life<=0){pExp(b.x,b.y);cam.shake=Math.max(cam.shake,14);npcs.forEach(n=>{if(!n.alive)return;if(!inWorld(n.x,n.y,1200))return;if(Math.hypot(b.x-n.x,b.y-n.y)<76){n.hp-=3;n.hf=.12;n.hostile=true;if(n.hp<=0)killNPC(n);}});police.forEach(p=>{if(!p.alive)return;if(Math.hypot(b.x-p.x,b.y-p.y)<76){p.hp-=4;p.hf=.12;if(p.hp<=0)p.alive=false;}});riders.forEach(r=>{if(!r.alive)return;if(Math.hypot(b.x-r.x,b.y-r.y)<76){r.hp-=4;r.hf=.12;if(r.hp<=0){r.alive=false;addXP(12);}}});bullets.splice(i,1);continue;}}
     for(let j=0;j<npcs.length&&!hit;j++){const n=npcs[j];if(!n.alive)continue;if(Math.hypot(b.x-n.x,b.y-n.y)<n.sz+5){n.hp-=b.dmg;n.hf=.13;pBlood(n.x,n.y,b.sg?4:8);cam.shake=Math.max(cam.shake,3);if(n.isDeadWest&&!n.hostile){n.hostile=true;showFB('💀 DEAD WEST RISES!','#cc0000');cam.shake=20;}n.hostile=true;if(n.hp<=0)killNPC(n);hit=true;}}
-    for(let j=0;j<police.length&&!hit;j++){const p=police[j];if(!p.alive)continue;if(Math.hypot(b.x-p.x,b.y-p.y)<p.sz+5){p.hp-=b.dmg;p.hf=.13;pBlood(p.x,p.y,5);cam.shake=Math.max(cam.shake,3);if(p.hp<=0){p.alive=false;addXP(15);showFK('DEPUTY DOWN');}hit=true;}}
+    for(let j=0;j<police.length&&!hit;j++){const p=police[j];if(!p.alive)continue;if(Math.hypot(b.x-p.x,b.y-p.y)<p.sz+5){p.hp-=b.dmg;p.hf=.13;pBlood(p.x,p.y,5);cam.shake=Math.max(cam.shake,3);if(p.hp<=0){p.alive=false;addXP(15);showFK(p.isSheriff?'SHERIFF DOWN!':'DEPUTY DOWN');if(questState.activeQuest!==null)questState.sessionDeputies++;}hit=true;}}
     for(let j=0;j<riders.length&&!hit;j++){const r=riders[j];if(!r.alive)continue;if(Math.hypot(b.x-r.x,b.y-r.y)<r.sz+5){r.hp-=b.dmg;r.hf=.13;pBlood(r.x,r.y,5);cam.shake=Math.max(cam.shake,3);if(r.hp<=0){r.alive=false;addXP(12);showFK('RIDER DOWN');}hit=true;}}
     if(!hit&&bWall(b.x,b.y)){pDust(b.x,b.y);hit=true;}
     if(hit||b.life<=0)bullets.splice(i,1);
@@ -2557,6 +2731,9 @@ function update(dt){
   const now=Date.now();Object.keys(REMOTES).forEach(k=>{if(now-REMOTES[k].lastSeen>8000)delete REMOTES[k];});
   uiHp();checkLoc();
   tickHoldE(dt);
+  questTick(dt);
+  tickLasso(dt);
+  tickSheriff(dt);
 }
 
 // ── RENDER ─────────────────────────────────────────
@@ -2564,10 +2741,10 @@ function render(){
   drawSky();drawGround();drawTracks();
   drawStreetLightGlow();
   for(const p of PARTS)if(p.t===4){const[sx,sy]=ws(p.x,p.y);X.save();X.globalAlpha=Math.min(.48,(p.r/p.mr)*(p.life/28)*1.5);X.fillStyle='#4c0000';X.beginPath();X.ellipse(sx,sy,p.r,p.r*.5,0,0,Math.PI*2);X.fill();X.restore();}
-  TOWNS.forEach(t=>t.blds.forEach(drawBuilding));
+  TOWNS.forEach(t=>t.blds.filter(b=>inWorld(b.x,b.y,1400)).forEach(drawBuilding));
   drawTrain();drawParts();
   eBullets.forEach(b=>drawBullet(b,true));bullets.forEach(b=>drawBullet(b,false));
-  npcs.filter(n=>n.alive).forEach(drawNPC);police.forEach(p=>p.alive&&drawPolice(p));riders.forEach(r=>r.alive&&drawRider(r));
+  npcs.filter(n=>n.alive&&inWorld(n.x,n.y)).forEach(drawNPC);police.forEach(p=>{if(p.alive&&inWorld(p.x,p.y))drawPolice(p);});riders.forEach(r=>{if(r.alive&&inWorld(r.x,r.y))drawRider(r);});
   drawRemotes();drawPlayer();drawMinimap();
 }
 
@@ -2946,30 +3123,26 @@ function restartGame(){stopMP();startGame();}
 loop();
 
 // ══════════════════════════════════════════════════
-//  MULTIPLAYER — MQTT over WebSocket
-//  Broker: broker.hivemq.com port 8884 (WSS/TLS)
-//  School-friendly: pure HTTPS/WSS port 8884, no WebRTC
-//  Free, no account needed, public broker
+//  MULTIPLAYER — PeerJS Mesh (primary, school-safe WSS)
+//  Falls back to MQTT if PeerJS unavailable
+//  PeerJS: wss on port 443, no WebRTC media (data only)
 // ══════════════════════════════════════════════════
 
-const MQTT_URL='wss://broker.hivemq.com:8884/mqtt';
-const MQTT_OPTS={
-  keepalive:30,
-  connectTimeout:8000,
-  clean:true,
-  reconnectPeriod:3000,
-};
-
-let _mqClient=null;
 let mpRoom='',mpPid='',mpBcastInt=null,bcastInt=null;
+let _mqClient=null;
+// PeerJS
+let _peer=null,_peers={};  // pid → DataConnection
 
 function mpLog(m,c){const e=document.getElementById('mpstat');if(e){e.textContent=m;e.style.color=c||'#2e3e1c';}}
 function mpHUD(m){document.getElementById('mst').textContent=m;}
 
-// MQTT topic helpers
-function _tPlayers(room){return `deadwest/${room}/players`;}
-function _tEvents(room){return `deadwest/${room}/events`;}
-function _tMyPlayer(room,pid){return `deadwest/${room}/players/${pid}`;}
+// ── Topic helpers for MQTT fallback ───────────────
+const MQTT_URL='wss://broker.hivemq.com:8884/mqtt';
+const MQTT_URL2='wss://test.mosquitto.org:8081/mqtt'; // backup broker
+const MQTT_OPTS={keepalive:25,connectTimeout:6000,clean:true,reconnectPeriod:0};
+function _tPlayers(r){return`dw3/${r}/players`;}
+function _tEvents(r){return`dw3/${r}/events`;}
+function _tMyPlayer(r,p){return`dw3/${r}/players/${p}`;}
 
 function joinMP(){
   const name=document.getElementById('mpname').value.trim().toUpperCase()||'OUTLAW';
@@ -2980,61 +3153,133 @@ function joinMP(){
   mpRoom=room;
   mpPid='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
   mpLog('CONNECTING…','#c8a018');
-  _mqConnect(room,name);
+  // Try PeerJS first, fall back to MQTT
+  _tryPeerJS(room,name);
 }
 
-function _mqConnect(room,name){
-  const clientId='dw_'+mpPid;
+// ── PeerJS approach ───────────────────────────────
+function _tryPeerJS(room,name){
   try{
-    _mqClient=mqtt.connect(MQTT_URL,{...MQTT_OPTS,clientId});
-  }catch(e){
-    mpLog('MQTT UNAVAILABLE','#c02014');
-    console.error('MQTT connect error:',e);
+    // Use PeerJS public broker on port 443
+    _peer=new Peer(mpPid,{
+      host:'0.peerjs.com',port:443,path:'/',secure:true,
+      config:{iceServers:[{urls:'stun:stun.l.google.com:19302'}]}
+    });
+    const timeout=setTimeout(()=>{
+      if(!mpRoom||_peer.disconnected){
+        mpLog('TRYING BACKUP…','#c8a018');
+        _peer.destroy();_peer=null;
+        _tryMQTT(room,name);
+      }
+    },5000);
+
+    _peer.on('open',id=>{
+      clearTimeout(timeout);
+      mpLog('P2P READY','#38a038');
+      // Announce ourselves via MQTT signaling channel
+      _mqSignal(room,name);
+    });
+
+    _peer.on('connection',conn=>{
+      conn.on('open',()=>{
+        _peers[conn.peer]=conn;
+        mpLog(Object.keys(_peers).length+1+' PLAYERS','#38a038');
+      });
+      conn.on('data',data=>{if(data)_handleIncoming(data);});
+      conn.on('close',()=>{delete _peers[conn.peer];delete REMOTES[conn.peer];});
+    });
+
+    _peer.on('error',e=>{
+      if(e.type==='unavailable-id'||e.type==='network'||e.type==='server-error'){
+        _peer.destroy();_peer=null;_tryMQTT(room,name);
+      }
+    });
+  }catch(e){_tryMQTT(room,name);}
+}
+
+function _mqSignal(room,name){
+  // Use MQTT just for signaling (sending peer IDs) — not game data
+  const clientId='dws_'+mpPid;
+  try{
+    const mc=mqtt.connect(MQTT_URL,{...MQTT_OPTS,clientId:'sig_'+clientId});
+    mc.on('connect',()=>{
+      mc.subscribe(_tPlayers(room)+'/#');
+      // Announce our PeerJS ID
+      mc.publish(_tMyPlayer(room,mpPid),JSON.stringify({id:mpPid,name,peerjs:true,ts:Date.now()}),{retain:true,qos:0});
+      // Listen for other peers to connect to
+      mc.on('message',(topic,payload)=>{
+        try{
+          const d=JSON.parse(payload);
+          if(!d||d.id===mpPid)return;
+          if(d.peerjs&&_peer&&!_peers[d.id]){
+            const conn=_peer.connect(d.id,{reliable:false,serialization:'json'});
+            conn.on('open',()=>{
+              _peers[d.id]=conn;
+              mpLog(Object.keys(_peers).length+1+' PLAYERS','#38a038');
+            });
+            conn.on('data',data=>{if(data)_handleIncoming(data);});
+            conn.on('close',()=>{delete _peers[d.id];delete REMOTES[d.id];});
+          }else if(!d.peerjs){
+            // Other player using MQTT — track as remote
+            REMOTES[d.id]={...d,lastSeen:Date.now()};
+          }
+        }catch(e){}
+      });
+      // Done signaling setup — start game
+      _mqSignalClient=mc;
+      mpHUD('● P2P · '+room+' · '+name);
+      startGame();
+    });
+    mc.on('error',()=>{mc.end(true);_tryMQTT(room,name);});
+  }catch(e){_tryMQTT(room,name);}
+}
+let _mqSignalClient=null;
+
+// ── MQTT fallback (pure broker relay) ────────────
+function _tryMQTT(room,name){
+  mpLog('RELAY MODE…','#c8a018');
+  const clientId='dw_'+mpPid;
+  const tryBroker=(url,fallback)=>{
+    try{
+      const mc=mqtt.connect(url,{...MQTT_OPTS,clientId,reconnectPeriod:0});
+      const t=setTimeout(()=>{mc.end(true);if(fallback)tryBroker(fallback,null);else mpLog('OFFLINE MODE','#c02014');},6000);
+      mc.on('connect',()=>{
+        clearTimeout(t);_mqClient=mc;
+        mc.subscribe(_tPlayers(room)+'/#');
+        mc.subscribe(_tEvents(room));
+        mc.publish(_tMyPlayer(room,mpPid),JSON.stringify({id:mpPid,name,x:~~P.x,y:~~P.y,hp:100,alive:true,lv:1,coat:PA.coat.color,skin:PA.skin.color,hat:PA.hat.color,hatId:PA.hat.id,ts:Date.now()}),{retain:true,qos:0});
+        mc.on('message',(topic,payload)=>{
+          let d;try{d=JSON.parse(payload);}catch(e){return;}
+          if(topic.startsWith(_tPlayers(room)+'/')){
+            const pid=topic.split('/').pop();
+            if(pid===mpPid)return;
+            if(!d){delete REMOTES[pid];return;}
+            REMOTES[pid]={...d,lastSeen:Date.now()};
+          }else if(topic===_tEvents(room)){
+            if(!d||d.from===mpPid)return;
+            _handleEvent(d);
+          }
+        });
+        _mpSendEvent({t:'join',name});
+        mpHUD('● RELAY · '+room+' · '+name);
+        mpLog('IN ROOM: '+room,'#38a038');
+        startGame();
+      });
+      mc.on('error',()=>{clearTimeout(t);mc.end(true);if(fallback)tryBroker(fallback,null);});
+    }catch(e){if(fallback)tryBroker(fallback,null);}
+  };
+  tryBroker(MQTT_URL,MQTT_URL2);
+}
+
+// ── Unified incoming data handler ─────────────────
+function _handleIncoming(data){
+  if(!data||data.from===mpPid)return;
+  // Player state update (from PeerJS direct)
+  if(data.t==='state'){
+    REMOTES[data.from]={...data,lastSeen:Date.now()};
     return;
   }
-
-  _mqClient.on('connect',()=>{
-    mpLog('IN ROOM: '+room,'#38a038');
-    mpHUD('● MP · '+room+' · '+name);
-
-    // Subscribe to players and events for this room
-    _mqClient.subscribe(_tPlayers(room)+'/#');
-    _mqClient.subscribe(_tEvents(room));
-
-    // Announce join
-    _mqPublishEvent({t:'join',name});
-
-    startGame();
-  });
-
-  _mqClient.on('error',e=>{
-    mpLog('CONNECTION ERROR','#c02014');
-    console.error('MQTT error:',e);
-  });
-
-  _mqClient.on('reconnect',()=>mpLog('RECONNECTING…','#c8a018'));
-
-  _mqClient.on('message',(topic,payload)=>{
-    let data;
-    try{data=JSON.parse(payload.toString());}catch(e){return;}
-
-    // Player state update
-    if(topic.startsWith(_tPlayers(room)+'/')){
-      const pid=topic.split('/').pop();
-      if(pid===mpPid)return;
-      if(data===null||data.alive===undefined){
-        delete REMOTES[pid];return;
-      }
-      REMOTES[pid]={...data,lastSeen:Date.now()};
-      return;
-    }
-
-    // Event message
-    if(topic===_tEvents(room)){
-      if(!data||data.from===mpPid)return;
-      _handleEvent(data);
-    }
-  });
+  _handleEvent(data);
 }
 
 function _handleEvent(ev){
@@ -3051,75 +3296,61 @@ function _handleEvent(ev){
       }
       break;
     }
-    case 'kill':
-      pBlood(ev.x,ev.y,14);pPool(ev.x,ev.y);cam.shake=Math.max(cam.shake,4);break;
-    case 'chat':
-      addChat(ev.name,ev.msg);break;
-    case 'join':
-      sysChat(ev.name+' JOINED');
-      mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');break;
-    case 'leave':
-      sysChat(ev.name+' LEFT');
-      delete REMOTES[ev.from];
-      mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');break;
-    case 'pint_money':
-      if(ev.to===mpPid)_pintShowReq('money',ev.from,ev.name,{amt:ev.amt});break;
-    case 'pint_item':
-      if(ev.to===mpPid)_pintShowReq('item',ev.from,ev.name,{itemType:ev.itemType,gunId:ev.gunId,gunName:ev.gunName,qty:ev.qty});break;
-    case 'pint_ack':
-      if(ev.to===mpPid)sysChat(ev.name+' ACCEPTED YOUR GIFT');break;
-    case 'pint_duel_req':
-      if(ev.to===mpPid)_pintShowReq('duel',ev.from,ev.name,{wager:ev.wager});break;
-    case 'pint_duel_accept':
-      if(ev.to===mpPid){showFB('⚔ DUEL ACCEPTED!','#e08020');_startDuelArena(true);}break;
-    case 'pint_duel_decline':
-      if(ev.to===mpPid)showFB('⚔ DUEL DECLINED','#604010');break;
+    case 'kill':pBlood(ev.x,ev.y,14);pPool(ev.x,ev.y);cam.shake=Math.max(cam.shake,4);break;
+    case 'chat':addChat(ev.name,ev.msg);break;
+    case 'join':sysChat(ev.name+' JOINED');mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');break;
+    case 'leave':sysChat(ev.name+' LEFT');delete REMOTES[ev.from];mpLog(Object.keys(REMOTES).length+1+' PLAYERS','#38a038');break;
+    case 'pint_money':if(ev.to===mpPid)_pintShowReq('money',ev.from,ev.name,{amt:ev.amt});break;
+    case 'pint_item':if(ev.to===mpPid)_pintShowReq('item',ev.from,ev.name,{itemType:ev.itemType,gunId:ev.gunId,gunName:ev.gunName,qty:ev.qty});break;
+    case 'pint_ack':if(ev.to===mpPid)sysChat(ev.name+' ACCEPTED YOUR GIFT');break;
+    case 'pint_duel_req':if(ev.to===mpPid)_pintShowReq('duel',ev.from,ev.name,{wager:ev.wager});break;
+    case 'pint_duel_accept':if(ev.to===mpPid){showFB('⚔ DUEL ACCEPTED!','#e08020');_startDuelArena(true);}break;
+    case 'pint_duel_decline':if(ev.to===mpPid)showFB('⚔ DUEL DECLINED','#604010');break;
     case 'pint_duel_click':
       if(duelState.active&&ev.to===mpPid){
         duelState.opClickTime=ev.ms;
-        if(duelState.myClicked){
-          // Both clicked — resolve with real times
-          _duelResolve(duelState.myMs,ev.ms);
-        } else {
-          // Opponent clicked first — they win after short delay (give us a chance)
-          setTimeout(()=>{
-            if(duelState.phase==='go'&&!duelState.myClicked){
-              _duelEnd(false,'TOO SLOW');
-            }
-          },300);
-        }
+        if(duelState.myClicked){_duelResolve(duelState.myMs,ev.ms);}
+        else{setTimeout(()=>{if(duelState.phase==='go'&&!duelState.myClicked)_duelEnd(false,'TOO SLOW');},300);}
       }
       break;
   }
 }
 
-function _mqPublish(topic,data,opts={}){
-  if(!_mqClient||!_mqClient.connected)return;
-  _mqClient.publish(topic,JSON.stringify(data),{qos:0,...opts});
+// ── Send helpers ──────────────────────────────────
+function _mpSendEvent(data){
+  const payload={...data,from:mpPid};
+  // PeerJS broadcast
+  Object.values(_peers).forEach(conn=>{try{conn.send(payload);}catch(e){}});
+  // MQTT relay
+  if(_mqClient&&_mqClient.connected&&mpRoom){
+    _mqClient.publish(_tEvents(mpRoom),JSON.stringify(payload),{qos:0});
+  }
 }
-
-function _mqPublishEvent(data){
-  if(!mpRoom||!mpPid)return;
-  _mqPublish(_tEvents(mpRoom),{...data,from:mpPid});
-}
-
-function _mpSendEvent(data){_mqPublishEvent(data);}
 
 function startMPBroadcast(){
   if(bcastInt)clearInterval(bcastInt);
   if(mpBcastInt)clearInterval(mpBcastInt);
   if(!mpRoom||!mpPid)return;
   mpBcastInt=setInterval(()=>{
-    if(!_mqClient||!_mqClient.connected||!mpRoom||!mpPid)return;
+    if(!mpRoom||!mpPid)return;
     const state={
-      id:mpPid,name:P.name,
+      t:'state',from:mpPid,id:mpPid,name:P.name,
       x:~~P.x,y:~~P.y,angle:+P.angle.toFixed(2),
       hp:~~P.hp,alive:P.alive,lv:P.lv,
       coat:PA.coat.color,skin:PA.skin.color,
       hat:PA.hat.color,hatId:PA.hat.id
     };
-    // Publish player state as retained so late joiners see it
-    _mqPublish(_tMyPlayer(mpRoom,mpPid),state,{retain:true});
+    // PeerJS direct
+    Object.values(_peers).forEach(conn=>{try{conn.send(state);}catch(e){}});
+    // MQTT retained
+    if(_mqClient&&_mqClient.connected){
+      const {t:_t,from:_f,...pub}=state;
+      _mqClient.publish(_tMyPlayer(mpRoom,mpPid),JSON.stringify({...pub,ts:Date.now()}),{retain:true,qos:0});
+    }
+    // Signal client (PeerJS mode)
+    if(_mqSignalClient&&_mqSignalClient.connected){
+      _mqSignalClient.publish(_tMyPlayer(mpRoom,mpPid),JSON.stringify({id:mpPid,name:P.name,x:~~P.x,y:~~P.y,hp:~~P.hp,alive:P.alive,peerjs:true,ts:Date.now()}),{retain:true,qos:0});
+    }
   },100);
   bcastInt=mpBcastInt;
 }
@@ -3135,15 +3366,16 @@ function stopMP(){
   if(mpBcastInt)clearInterval(mpBcastInt);
   if(bcastInt)clearInterval(bcastInt);
   mpBcastInt=null;bcastInt=null;
-  if(_mqClient){
-    if(mpRoom&&mpPid){
-      // Publish null (empty) retained message to clear our player slot
-      _mqPublish(_tMyPlayer(mpRoom,mpPid),null,{retain:true});
-      _mqPublishEvent({t:'leave',name:P.name});
-    }
-    try{_mqClient.end(true);}catch(e){}
-    _mqClient=null;
+  if(mpRoom&&mpPid){
+    _mpSendEvent({t:'leave',name:P.name});
+    if(_mqClient&&_mqClient.connected)_mqClient.publish(_tMyPlayer(mpRoom,mpPid),'',{retain:true,qos:0});
+    if(_mqSignalClient&&_mqSignalClient.connected)_mqSignalClient.publish(_tMyPlayer(mpRoom,mpPid),'',{retain:true,qos:0});
   }
+  Object.values(_peers).forEach(c=>{try{c.close();}catch(e){}});
+  _peers={};
+  if(_peer){try{_peer.destroy();}catch(e){}}_peer=null;
+  if(_mqClient){try{_mqClient.end(true);}catch(e){}}_mqClient=null;
+  if(_mqSignalClient){try{_mqSignalClient.end(true);}catch(e){}}_mqSignalClient=null;
   mpRoom='';mpPid='';
   Object.keys(REMOTES).forEach(k=>delete REMOTES[k]);
   mpHUD('● SOLO');
@@ -3636,6 +3868,194 @@ function _exitDuelArena(){
 
 // ── Hook tickHoldE into update loop ──────────────
 // (tickHoldE is called from update() directly)
+
+
+// ══════════════════════════════════════════════════
+//  QUEST SYSTEM
+// ══════════════════════════════════════════════════
+const QUESTS=[
+  {id:0,title:'FIRST BLOOD',desc:'Take down 3 bounty hunters in Saint Creole.',goal:'kills',target:3,reward:{money:400,xp:50}},
+  {id:1,title:'ROAD TAX',desc:'Rob the train once. Wait near the tracks for it to pass.',goal:'trains',target:1,reward:{money:800,xp:80}},
+  {id:2,title:'WANTED MAN',desc:'Reach 3 wanted stars and survive for 60 seconds.',goal:'wantedTime',target:60,reward:{money:1200,xp:120}},
+  {id:3,title:'GOLD RUSH',desc:'Earn $2000 in a single session without dying.',goal:'money',target:2000,reward:{money:1500,xp:150}},
+  {id:4,title:'THE RECKONING',desc:'Kill 5 deputies.',goal:'deputies',target:5,reward:{money:2500,xp:200,unlock:'modShop'}},
+];
+
+let questState={
+  questsCompleted:0,
+  activeQuest:null,
+  progress:0,
+  wantedTimer:0,
+  sessionMoney:0,
+  sessionDeputies:0,
+  sessionKills:0,
+  sessionTrains:0,
+};
+let questPanelOpen=false;
+
+function openQuestPanel(){
+  if(questPanelOpen)return;
+  questPanelOpen=true;
+  const q=QUESTS[questState.questsCompleted];
+  if(!q){showFB('ALL QUESTS COMPLETE!','#f0e040');return;}
+  if(questState.activeQuest){
+    // Show current progress
+    document.getElementById('qp-subhead').textContent='QUEST IN PROGRESS';
+    document.getElementById('qp-desc').textContent=q.desc;
+    const pct=Math.min(1,questState.progress/q.target);
+    document.getElementById('qp-bar-fill').style.width=(pct*100)+'%';
+    document.getElementById('qp-prog-text').textContent='PROGRESS: '+questState.progress+' / '+q.target;
+    document.getElementById('qp-accept-btn').textContent='CLAIM REWARD';
+    document.getElementById('qp-accept-btn').style.display=pct>=1?'block':'none';
+  } else {
+    document.getElementById('qp-subhead').textContent='QUEST '+(questState.questsCompleted+1)+' OF 5';
+    document.getElementById('qp-desc').textContent=q.desc+'\n\nREWARD: $'+q.reward.money+' + '+q.reward.xp+' XP'+(q.reward.unlock?'\n⚙ UNLOCKS MOD SHOP':'');
+    document.getElementById('qp-bar-fill').style.width='0%';
+    document.getElementById('qp-prog-text').textContent='NOT STARTED';
+    document.getElementById('qp-accept-btn').textContent='ACCEPT QUEST';
+    document.getElementById('qp-accept-btn').style.display='block';
+  }
+  document.getElementById('qp-desc').style.whiteSpace='pre-line';
+  document.getElementById('quest-panel').classList.add('open');
+}
+
+function closeQuestPanel(){questPanelOpen=false;document.getElementById('quest-panel').classList.remove('open');}
+
+function questAccept(){
+  const q=QUESTS[questState.questsCompleted];
+  if(!q)return;
+  if(questState.activeQuest&&questState.progress>=q.target){
+    // Claim reward
+    addMoney(q.reward.money);addXP(q.reward.xp);
+    questState.questsCompleted++;questState.activeQuest=null;questState.progress=0;
+    questState.sessionKills=0;questState.sessionTrains=0;questState.sessionDeputies=0;questState.sessionMoney=0;questState.wantedTimer=0;
+    if(q.reward.unlock==='modShop')showFB('⚙ MOD SHOP UNLOCKED — VISIT THE HARBOUR!','#c090f0');
+    else showFB('✦ QUEST COMPLETE! +$'+q.reward.money,'#f0e040');
+    sysChat('✦ '+P.name+' COMPLETED QUEST: '+q.title);
+    updateQuestHUD();
+    closeQuestPanel();
+  } else {
+    // Accept
+    questState.activeQuest=q.id;questState.progress=0;
+    showFB('✦ QUEST ACCEPTED: '+q.title,'#e0c030');
+    updateQuestHUD();
+    closeQuestPanel();
+  }
+}
+
+function updateQuestHUD(){
+  const hud=document.getElementById('quest-hud');
+  const q=QUESTS[questState.questsCompleted];
+  if(!q||questState.activeQuest===null){hud.classList.remove('active');return;}
+  hud.classList.add('active');
+  document.getElementById('quest-hud-title').textContent='QUEST '+(questState.questsCompleted+1)+'/5: '+q.title;
+  document.getElementById('quest-hud-desc').textContent=q.desc;
+  document.getElementById('quest-hud-prog').textContent=questState.progress+' / '+q.target;
+}
+
+function questTick(dt){
+  if(questState.activeQuest===null)return;
+  const q=QUESTS[questState.activeQuest];
+  if(!q)return;
+  if(q.goal==='wantedTime'&&wanted>=3){
+    questState.wantedTimer+=dt;
+    questState.progress=~~questState.wantedTimer;
+  }
+  if(q.goal==='money'){questState.progress=~~questState.sessionMoney;}
+  if(q.goal==='kills'){questState.progress=questState.sessionKills;}
+  if(q.goal==='trains'){questState.progress=questState.sessionTrains;}
+  if(q.goal==='deputies'){questState.progress=questState.sessionDeputies;}
+  if(questState.progress>=q.target&&questState.activeQuest!==null){
+    showFB('✦ QUEST DONE! RETURN TO QUEST GIVER','#f0e040');
+    questState.activeQuest=null; // will show claim on next visit
+    questState.activeQuest=q.id; // keep it active until claimed
+  }
+  updateQuestHUD();
+}
+
+// ══════════════════════════════════════════════════
+//  MOD SHOP
+// ══════════════════════════════════════════════════
+const MOD_ITEMS=[
+  {id:'barrel_ext',icon:'🔩',name:'BARREL EXT.',desc:'Range +40%',price:1200,owned:false,apply(){ALLG.forEach(g=>{if(!g.isAdmin)g.rng*=1.4;});showFB('RANGE EXTENDED','#c090f0');}},
+  {id:'rapid_fire',icon:'⚡',name:'RAPID FIRE',desc:'Firerate +35%',price:1800,owned:false,apply(){ALLG.forEach(g=>{if(!g.isAdmin)g.fr=Math.max(0.04,g.fr*.65);});showFB('RAPID FIRE MOD','#c090f0');}},
+  {id:'dmg_boost',icon:'💥',name:'DMG BOOST',desc:'Damage +25%',price:2200,owned:false,apply(){ALLG.forEach(g=>{if(!g.isAdmin)g.dmg*=1.25;});showFB('DAMAGE BOOSTED','#c090f0');}},
+  {id:'dual_holsters',icon:'🤠',name:'DUAL HOLSTERS',desc:'Hold 2 guns, swap with Q',price:3000,owned:false,apply(){P.dualHolster=true;showFB('DUAL HOLSTERS EQUIPPED','#c090f0');}},
+  {id:'lasso',icon:'🪢',name:'LASSO',desc:'Hold L — kidnap nearby NPCs. Adds bounty.',price:2500,owned:false,apply(){P.hasLasso=true;showFB('LASSO EQUIPPED — HOLD L','#c090f0');}},
+  {id:'ammo_belt',icon:'🎯',name:'AMMO BELT',desc:'Max ammo reserve +100%',price:900,owned:false,apply(){ALLG.forEach(g=>{if(!g.isAdmin)g.res=~~(g.res*2);});P.res=P.gun.res;uiAmmo();showFB('AMMO BELT FITTED','#c090f0');}},
+];
+
+function openModShop(){
+  if(questState.questsCompleted<5){showFB('COMPLETE 5 QUESTS FIRST','#c04010');return;}
+  modShopOpen=true;
+  const grid=document.getElementById('mod-shop-grid');grid.innerHTML='';
+  MOD_ITEMS.forEach(it=>{
+    const canAfford=P.money>=it.price;
+    const d=document.createElement('div');
+    d.className='ms-item'+(it.owned?' ms-owned':canAfford?'':' ms-locked');
+    const priceHtml=it.owned?'<div class="ms-owned-tag">INSTALLED</div>':'<div class="ms-price">$'+it.price.toLocaleString()+'</div>';
+    d.innerHTML='<div class="ms-icon">'+it.icon+'</div><div class="ms-name">'+it.name+'</div><div class="ms-desc">'+it.desc+'</div>'+priceHtml;
+    if(!it.owned&&canAfford)d.addEventListener('click',()=>{
+      P.money-=it.price;document.getElementById('hmv').textContent='$'+P.money.toLocaleString();
+      it.owned=true;it.apply();openModShop();
+    });
+    grid.appendChild(d);
+  });
+  document.getElementById('mod-shop').classList.add('open');
+}
+function closeModShop(){modShopOpen=false;document.getElementById('mod-shop').classList.remove('open');}
+
+// ══════════════════════════════════════════════════
+//  LASSO SYSTEM
+// ══════════════════════════════════════════════════
+let lassoTarget=null,lassoHoldT=0;
+function tickLasso(dt){
+  if(!P.hasLasso||!gameOn)return;
+  if(K['KeyL']){
+    lassoHoldT+=dt;
+    if(lassoHoldT>.8&&!lassoTarget){
+      // Find nearest NPC
+      let best=null,bd=200;
+      npcs.forEach(n=>{if(!n.alive||n.isQuestGiver||n.isModShopNPC)return;const d=Math.hypot(n.x-P.x,n.y-P.y);if(d<bd){bd=d;best=n;}});
+      if(best){lassoTarget=best;best.lassoed=true;showFB('🪢 LASSOED!','#c8a018');addWanted(1);}
+    }
+  } else {lassoHoldT=0;}
+  if(lassoTarget){
+    if(!lassoTarget.alive){lassoTarget=null;return;}
+    // Pull NPC toward player
+    const dx=P.x-lassoTarget.x,dy=P.y-lassoTarget.y,d=Math.hypot(dx,dy);
+    if(d>40){lassoTarget.x+=dx/d*80*dt;lassoTarget.y+=dy/d*80*dt;}
+    if(!K['KeyL']){lassoTarget.lassoed=false;lassoTarget=null;}
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  SHERIFF AI + TASER
+// ══════════════════════════════════════════════════
+let taserActive=false,taserT=0;
+function tickSheriff(dt){
+  if(taserActive){
+    taserT-=dt;document.getElementById('taser-overlay').style.display='block';
+    if(taserT<=0){
+      taserActive=false;document.getElementById('taser-overlay').style.display='none';
+    }
+  }
+  police.forEach(p=>{
+    if(!p.alive||!p.isSheriff)return;
+    p.taserCd=(p.taserCd||0)-dt;
+    const d=Math.hypot(p.x-P.x,p.y-P.y);
+    if(p.taserCd<=0&&d<p.taserRange){
+      // Deploy taser
+      p.taserCd=8;
+      taserActive=true;taserT=3;
+      P.inv=3; // freeze: inv makes player invincible but we hijack it
+      showFB('⚡ TASED! FROZEN!','#4060ff');showFP('TASED BY SHERIFF!');
+      cam.shake=25;
+    }
+  });
+}
+
+// Block movement when tased
 
 // ── CHAT UI ───────────────────────────────────────
 function addChat(name,msg,sys){
