@@ -1622,8 +1622,15 @@ function doShoot(){
   const bx=P.x+Math.cos(P.angle)*22,by=P.y+Math.sin(P.angle)*22;
   const isRainbow=g.isAdmin;
   if(g.sg){const pc=g.pc||8;for(let i=0;i<pc;i++){const sp=(Math.random()-.5)*g.spr;bullets.push({x:bx,y:by,vx:Math.cos(P.angle+sp)*g.spd,vy:Math.sin(P.angle+sp)*g.spd,life:g.rng,tr:[],dmg:~~(g.dmg/pc)+2,sg:true,rainbow:isRainbow});}mpShoot({sg:true,x:~~bx,y:~~by,a:P.angle,spd:g.spd,spr:g.spr,dmg:~~(g.dmg/pc)+2,pc});}
-  else{const sp=(Math.random()-.5)*g.spr,vx=Math.cos(P.angle+sp)*g.spd,vy=Math.sin(P.angle+sp)*g.spd;bullets.push({x:bx,y:by,vx,vy,life:g.rng,tr:[],dmg:g.dmg,sp:g.sp||null,rainbow:isRainbow});mpShoot({sg:false,x:~~bx,y:~~by,vx:~~vx,vy:~~vy,life:g.rng,dmg:g.dmg});if(g.sp==='burst')setTimeout(()=>{if(!P.alive)return;const s2=(Math.random()-.5)*g.spr;bullets.push({x:bx,y:by,vx:Math.cos(P.angle+s2)*g.spd,vy:Math.sin(P.angle+s2)*g.spd,life:g.rng,tr:[],dmg:g.dmg,rainbow:isRainbow});},80);}
+  else{const sp=(Math.random()-.5)*g.spr,vx=Math.cos(P.angle+sp)*g.spd,vy=Math.sin(P.angle+sp)*g.spd;const isPistol=['peacemaker','viper','deringer','schofield'].includes(g.id);bullets.push({x:bx,y:by,vx,vy,life:g.rng,tr:[],dmg:g.dmg,sp:g.sp||null,rainbow:isRainbow,isBlue:isPistol&&!isRainbow});mpShoot({sg:false,x:~~bx,y:~~by,vx:~~vx,vy:~~vy,life:g.rng,dmg:g.dmg});if(g.sp==='burst')setTimeout(()=>{if(!P.alive)return;const s2=(Math.random()-.5)*g.spr;const isPistolB=['peacemaker','viper','deringer','schofield'].includes(g.id);bullets.push({x:bx,y:by,vx:Math.cos(P.angle+s2)*g.spd,vy:Math.sin(P.angle+s2)*g.spd,life:g.rng,tr:[],dmg:g.dmg,rainbow:isRainbow,isBlue:isPistolB&&!isRainbow});},80);}
   pMuzz(bx,by,P.angle);pCasing(P.x,P.y,P.angle);cam.shake=Math.max(cam.shake,g.sg?9:5);flashT=.07;
+  // Dual Revolvers — fire second bullet with slight offset
+  if(P.dualRevolver&&!g.sg&&!g.isAdmin){
+    const sp2=(Math.random()-.5)*0.18,vx2=Math.cos(P.angle+sp2)*g.spd,vy2=Math.sin(P.angle+sp2)*g.spd;
+    const isPistolD=['peacemaker','viper','deringer','schofield'].includes(g.id);
+    bullets.push({x:bx,y:by,vx:vx2,vy:vy2,life:g.rng,tr:[],dmg:~~(g.dmg*.8),isBlue:isPistolD&&!isRainbow,rainbow:isRainbow});
+    pMuzz(bx+Math.cos(P.angle+Math.PI/2)*8,by+Math.sin(P.angle+Math.PI/2)*8,P.angle);
+  }
   if(!g.isAdmin&&P.ammo===0)setTimeout(startReload,350);
 }
 function onRMB(){if(!P.alive||!gameOn)return;const g=P.gun;if(g.sp==='explosive'){const bx=P.x+Math.cos(P.angle)*22,by=P.y+Math.sin(P.angle)*22;bullets.push({x:bx,y:by,vx:Math.cos(P.angle)*375,vy:Math.sin(P.angle)*375,life:.9,tr:[],dmg:0,sp:'explode'});cam.shake=9;flashT=.1;}else if(g.sg){if(P.ammo>=2){doShoot();setTimeout(doShoot,50);}else if(P.ammo>=1)doShoot();}else startReload();}
@@ -2763,7 +2770,10 @@ function update(dt){
   for(let i=respawnQ.length-1;i>=0;i--){respawnQ[i].t-=dt;if(respawnQ[i].t<=0){npcs.push(respawnQ[i].fn());respawnQ.splice(i,1);}}
   updTrain(dt);
   npcs.forEach(n=>{
-    if(!n.alive)return;if(n.hf>0)n.hf-=dt;
+    if(!n.alive)return;
+    // Special NPCs — immortal, static, never hostile
+    if(n.isQuestGiver||n.isModShopNPC)return;
+    if(n.hf>0)n.hf-=dt;
     if(n.isDeadWest){
       // Dead West: only hostile if player has shot him; never delivers killing blow
       if(n.hostile){
@@ -2793,15 +2803,22 @@ function update(dt){
       }
       return;
     }
-    if(n.hostile)aiMove(n,dt);
-    else{n.wt-=dt;if(n.wt<=0){n.wt=3+Math.random()*4;const t=TOWNS[n.ti];n.wtx=t.x+(Math.random()-.5)*290;n.wty=t.y+(Math.random()-.5)*290;}const wdx=n.wtx-n.x,wdy=n.wty-n.y,wd=Math.hypot(wdx,wdy);if(wd>15){const s=n.spd*.35*dt/wd;n.x+=wdx*s;n.y+=wdy*s;[n.x,n.y]=resolveP(n.x,n.y,n.sz);n.ang=Math.atan2(wdy,wdx);}}
+    if(n.hostile){
+      aiMove(n,dt);
+    } else {
+      if(!n.wtx||!n.wty){const t=TOWNS[n.ti]||TOWNS[0];n.wtx=t.x+(Math.random()-.5)*290;n.wty=t.y+(Math.random()-.5)*290;n.wt=2+Math.random()*3;}
+      n.wt-=dt;
+      if(n.wt<=0){n.wt=3+Math.random()*4;const t=TOWNS[n.ti]||TOWNS[0];n.wtx=t.x+(Math.random()-.5)*290;n.wty=t.y+(Math.random()-.5)*290;}
+      const wdx=n.wtx-n.x,wdy=n.wty-n.y,wd=Math.hypot(wdx,wdy);
+      if(wd>15){const s=n.spd*.35*dt/wd;n.x+=wdx*s;n.y+=wdy*s;[n.x,n.y]=resolveP(n.x,n.y,n.sz);n.ang=Math.atan2(wdy,wdx);}
+    }
   });
   police.forEach(p=>{if(p.alive)aiMove(p,dt);});riders.forEach(r=>{if(r.alive){aiMove(r,dt);if(Math.random()<.28)pHoof(r.x,r.y);}});
   // player bullets
   for(let i=bullets.length-1;i>=0;i--){
     const b=bullets[i];if(!b)continue;if(!b.tr)b.tr=[];if(!b.sg){b.tr.push([b.x,b.y]);if(b.tr.length>6)b.tr.shift();}b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;let hit=false;
     if(b.sp==='explode'){const near=npcs.some(n=>n.alive&&Math.hypot(b.x-n.x,b.y-n.y)<92)||police.some(p=>p.alive&&Math.hypot(b.x-p.x,b.y-p.y)<92)||riders.some(r=>r.alive&&Math.hypot(b.x-r.x,b.y-r.y)<92);if(near||bWall(b.x,b.y)||b.life<=0){pExp(b.x,b.y);cam.shake=Math.max(cam.shake,14);npcs.forEach(n=>{if(!n.alive)return;if(!inWorld(n.x,n.y,1200))return;if(Math.hypot(b.x-n.x,b.y-n.y)<76){n.hp-=3;n.hf=.12;n.hostile=true;if(n.hp<=0)killNPC(n);}});police.forEach(p=>{if(!p.alive)return;if(Math.hypot(b.x-p.x,b.y-p.y)<76){p.hp-=4;p.hf=.12;if(p.hp<=0)p.alive=false;}});riders.forEach(r=>{if(!r.alive)return;if(Math.hypot(b.x-r.x,b.y-r.y)<76){r.hp-=4;r.hf=.12;if(r.hp<=0){r.alive=false;addXP(12);}}});bullets.splice(i,1);continue;}}
-    for(let j=0;j<npcs.length&&!hit;j++){const n=npcs[j];if(!n.alive)continue;if(Math.hypot(b.x-n.x,b.y-n.y)<n.sz+5){n.hp-=b.dmg;n.hf=.13;pBlood(n.x,n.y,b.sg?4:8);cam.shake=Math.max(cam.shake,3);if(n.isDeadWest&&!n.hostile){n.hostile=true;showFB('💀 DEAD WEST RISES!','#cc0000');cam.shake=20;}n.hostile=true;if(n.hp<=0)killNPC(n);hit=true;}}
+    for(let j=0;j<npcs.length&&!hit;j++){const n=npcs[j];if(!n.alive)continue;if(n.isQuestGiver||n.isModShopNPC)continue;if(Math.hypot(b.x-n.x,b.y-n.y)<n.sz+5){n.hp-=b.dmg;n.hf=.13;pBlood(n.x,n.y,b.sg?4:8);cam.shake=Math.max(cam.shake,3);if(n.isDeadWest&&!n.hostile){n.hostile=true;showFB('💀 DEAD WEST RISES!','#cc0000');cam.shake=20;}if(!n.isQuestGiver&&!n.isModShopNPC)n.hostile=true;if(n.hp<=0)killNPC(n);hit=true;}}
     for(let j=0;j<police.length&&!hit;j++){const p=police[j];if(!p.alive)continue;if(Math.hypot(b.x-p.x,b.y-p.y)<p.sz+5){p.hp-=b.dmg;p.hf=.13;pBlood(p.x,p.y,5);cam.shake=Math.max(cam.shake,3);if(p.hp<=0){p.alive=false;addXP(15);showFK(p.isSheriff?'SHERIFF DOWN!':'DEPUTY DOWN');if(questState.activeQuest!==null)questState.sessionDeputies++;}hit=true;}}
     for(let j=0;j<riders.length&&!hit;j++){const r=riders[j];if(!r.alive)continue;if(Math.hypot(b.x-r.x,b.y-r.y)<r.sz+5){r.hp-=b.dmg;r.hf=.13;pBlood(r.x,r.y,5);cam.shake=Math.max(cam.shake,3);if(r.hp<=0){r.alive=false;addXP(12);showFK('RIDER DOWN');}hit=true;}}
     if(!hit&&bWall(b.x,b.y)){pDust(b.x,b.y);hit=true;}
@@ -4082,7 +4099,7 @@ const MOD_ITEMS=[
   {id:'barrel_ext',icon:'🔩',name:'BARREL EXT.',desc:'Range +40%',price:1200,owned:false,apply(){ALLG.forEach(g=>{if(!g.isAdmin)g.rng*=1.4;});showFB('RANGE EXTENDED','#c090f0');}},
   {id:'rapid_fire',icon:'⚡',name:'RAPID FIRE',desc:'Firerate +35%',price:1800,owned:false,apply(){ALLG.forEach(g=>{if(!g.isAdmin)g.fr=Math.max(0.04,g.fr*.65);});showFB('RAPID FIRE MOD','#c090f0');}},
   {id:'dmg_boost',icon:'💥',name:'DMG BOOST',desc:'Damage +25%',price:2200,owned:false,apply(){ALLG.forEach(g=>{if(!g.isAdmin)g.dmg*=1.25;});showFB('DAMAGE BOOSTED','#c090f0');}},
-  {id:'dual_holsters',icon:'🤠',name:'DUAL HOLSTERS',desc:'Hold 2 guns, swap with Q',price:3000,owned:false,apply(){P.dualHolster=true;showFB('DUAL HOLSTERS EQUIPPED','#c090f0');}},
+  {id:'dual_holsters',icon:'🔫',name:'DUAL REVOLVERS',desc:'Equip two revolvers — shoots both at once',price:3000,owned:false,apply(){P.dualRevolver=true;showFB('DUAL REVOLVERS EQUIPPED','#c090f0');}},
   {id:'lasso',icon:'🪢',name:'LASSO',desc:'Hold L — kidnap nearby NPCs. Adds bounty.',price:2500,owned:false,apply(){P.hasLasso=true;showFB('LASSO EQUIPPED — HOLD L','#c090f0');}},
   {id:'ammo_belt',icon:'🎯',name:'AMMO BELT',desc:'Max ammo reserve +100%',price:900,owned:false,apply(){ALLG.forEach(g=>{if(!g.isAdmin)g.res=~~(g.res*2);});P.res=P.gun.res;uiAmmo();showFB('AMMO BELT FITTED','#c090f0');}},
 ];
